@@ -32,7 +32,7 @@ ignore_dirty_states="${4-0}";
 # |    |   ||   ||    |    ||   ||   |`---.
 # `    `---'`   '`---'`---'``---'`   '`---'
 
-source ./check_git_release_lib.sh || exit 1;
+source $(cd $(dirname "$0"); pwd)/check_git_release_lib.sh || exit 1;
 
 ## A error has been found. Expose for parsing!
 # USAGE: err <message>
