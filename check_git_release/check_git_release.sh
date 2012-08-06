@@ -119,7 +119,7 @@ if [[ "$check_submodules" == "1" && -f $repo_path/.gitmodules ]]; then
 
       [ x"$submod_tag" == "x" ] || \
         info "SUBMODULE:${submod_dir}:TAG=$submod_tag";
-  done < <( git --git-dir=$git_dir --work-tree=$repo_path submodule status | \
+  done < <( cd $repo_path; git submodule status | \
       sed -e 's@^\s*\([a-z0-9]\+\)\s*\([^ ]\+\).*@\1 \2@';
   ) # ends redirect into the loop
 fi;
