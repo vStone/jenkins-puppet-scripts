@@ -64,7 +64,7 @@ sub() {
 ## Debug function. Only ouputs stuff if SCRIPTDEBUG is set to something/anything.
 # USAGE: debug <message>
 debug() {
-  if [[ x"$SCRIPTDEBUG" != "x" ]]; then
+  if [ "$SCRIPTDEBUG" ]; then
     echo "[debug] $*" 1>&2;
   fi;
 }
@@ -97,10 +97,8 @@ tag=`get_tag $repo_path $commit $git_dir` || \
   err "MAIN:could not find any tag on path '$repo_path'";
 debug "tag = '$tag'";
 
-if [[ -n $tag ]]; then
-  export GIT_TAG="$tag"
-fi;
-info "MAIN:TAG=${GIT_TAG-unknown}";
+[ "$tag" ] || tag="unknown";
+info "MAIN:TAG=${tag-unknown}";
 
 if [[ "$check_submodules" == "1" && -f $repo_path/.gitmodules ]]; then
 
@@ -117,7 +115,7 @@ if [[ "$check_submodules" == "1" && -f $repo_path/.gitmodules ]]; then
 
       debug "[submodule] submod_tag = '$submod_tag'";
 
-      [ x"$submod_tag" == "x" ] || \
+      [ "$submod_tag" ] && \
         info "SUBMODULE:${submod_dir}:TAG=$submod_tag";
   done < <( cd $repo_path; git submodule status | \
       sed -e 's@^\s*\([a-z0-9]\+\)\s*\([^ ]\+\).*@\1 \2@';
@@ -126,4 +124,4 @@ fi;
 
 
 debug "error_count = '$error_count'";
-[[ $error_count ==  0 ]] || exit 1;
+[ $error_count ==  0 ] || exit 1;
