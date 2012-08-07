@@ -8,7 +8,7 @@
 #
 
 syserr() {
-  echo "[puppet_syntax] ERROR: $*" 1>&2
+  echo "[$0] ERROR: $*" 1>&2
   exit 1;
 }
 
@@ -19,28 +19,26 @@ USAGE: $0 [options] <folder|file> [...]
 Checks syntax of all puppet files.
 
 OPTIONS:
-  -t, --max-threads NUMBER    The maximum number of simultaneous threads to use.
-                              You can also specify MAX_THREADS as an environment
-                              variable. max_threads defaults to 5.
-  -p --puppet-bin             Path to puppet executable to use. You can also set
-                              PUPPET as an environment variable. Defaults to 'puppet'.
-  -e, --erb-bin               Path to erb executable. You can also specify ERB as
-                              an environment variable. Defaults to 'erb'.
-  -r, --ruby-bin              Path to ruby executable. You can also specify RUBY as
-                              an environment varialbe. Defaults to 'ruby'.
+  -t, --max-threads NUMBER    The max number of simultaneous threads to use.
+                              You can also specify MAX_THREADS as an env
+                              variable. Defaults to 5.
+  -p --puppet-bin             Path to puppet executable to use. You can also
+                              set PUPPET as an environment variable.
+                              Defaults to 'puppet'.
+  -e, --erb-bin               Path to erb executable. You can also specify ERB
+                              as an environment variable. Defaults to 'erb'.
+  -r, --ruby-bin              Path to ruby executable. You can also specify
+                              RUBY as an environment variable.
+                              Defaults to 'ruby'.
   -h, --help                  Display this message and exit.
 
-The argument(s) should be a file or directories containing puppet manifests.
-Folders are search recursivly for puppet files.
+The argument(s) should be a file or directories containing puppet manifests 
+and/or ruby templates. Folders are search recursivly for files.
 
 EOHELP
   exit 0;
 }
 
-## No arguments
-if [ ${#*} == 0 ]; then
-  _help
-fi;
 
 
 ## getopts parsing
@@ -50,7 +48,7 @@ else
   syserr "You are using an old getopt version $(getopt -V)";
 fi;
 
-TEMP=`getopt -o -t:p:e:r:h --long max-threads,puppet-bin,erb-bin,ruby-bin,help -n "$0" -- "$@"`;
+TEMP=`getopt -o -t:p:e:r:h -l max-threads:,puppet-bin:,erb-bin:,ruby-bin:,help -n "$0" -- "$@"`;
 
 if [[ $? != 0 ]]; then
   syserr "Error parsing arguments";
@@ -58,10 +56,14 @@ fi;
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -t|--max-threads)     MAX_THREADS="$2"; shift;;
-    -p|--puppet-bin)      PUPPET="$2"; shift;;
-    -e|--erb-bin)         ERB="$2"; shift;;
-    -r|--ruby-bin)        RUBY="$2"; shift;;
+    -t|--max-threads)     echo "$2" | grep -q '^[0-9]\+$' || syserr "max-threads should be a number";
+                          MAX_THREADS="$2"; shift;;
+    -p|--puppet-bin)      [ -f $2 ] || syserr "puppet-bin: file does not exist";
+                          PUPPET="$2"; shift;;
+    -e|--erb-bin)         [ -f $2 ] || syserr "erb-bin: file does not exist";
+                          ERB="$2"; shift;;
+    -r|--ruby-bin)        [ -f $2 ] || syserr "ruby-bin: file does not exist";
+                          RUBY="$2"; shift;;
     -h|--help)            _help;;
     -*)                   syserr "Command option '$1' not recognized";;
     --)                   shift; break;;
@@ -75,6 +77,10 @@ PUPPET="${PUPPET-puppet}";
 ERB="${ERB-erb}";
 RUBY="${RUBY-ruby}";
 
+## No arguments
+if [ ${#*} == 0 ]; then
+  _help
+fi;
 #==========================================================
 # |              o          |
 # |    ,---.,---..,---.,---.|
