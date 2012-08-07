@@ -18,8 +18,10 @@
 ## External scripts
 #source $(cd $(dirname "$0")/../common/; pwd)/functions.sh || \
 #  syserr "Failed to load required common/functions.sh library.";
-source $(cd $(dirname "$0"); pwd)/check_git_release_lib.sh || \
-  syserr "Failed to load required check_git_release_lib.sh library.";
+if ! source $(cd $(dirname "$0"); pwd)/check_git_release_lib.inc; then
+  echo "Failed to load required check_git_release_lib.sh library." 1>&2
+  exit 1
+fi;
 
 ## Keep track of the number of errors we encounter.
 declare -i errors=0;
