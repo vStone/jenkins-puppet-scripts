@@ -56,14 +56,10 @@ fi;
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -t|--max-threads)     echo "$2" | grep -q '^[0-9]\+$' || syserr "max-threads should be a number";
-                          PUPPET_SYNTAX_THREADS="$2"; shift;;
-    -p|--puppet-bin)      [ -f $2 ] || syserr "puppet-bin: file does not exist";
-                          PUPPET_BIN="$2"; shift;;
-    -e|--erb-bin)         [ -f $2 ] || syserr "erb-bin: file does not exist";
-                          ERB_BIN="$2"; shift;;
-    -r|--ruby-bin)        [ -f $2 ] || syserr "ruby-bin: file does not exist";
-                          RUBY_BIN="$2"; shift;;
+    -t|--max-threads)     PUPPET_SYNTAX_THREADS="$2"; shift;;
+    -p|--puppet-bin)      PUPPET_BIN="$2"; shift;;
+    -e|--erb-bin)         ERB_BIN="$2"; shift;;
+    -r|--ruby-bin)        RUBY_BIN="$2"; shift;;
     -h|--help)            _help;;
     -*)                   syserr "Command option '$1' not recognized";;
     --)                   shift; break;;
@@ -77,10 +73,24 @@ PUPPET_BIN="${PUPPET_BIN-puppet}";
 ERB_BIN="${ERB_BIN-erb}";
 RUBY_BIN="${RUBY_BIN-ruby}";
 
+
 ## No arguments
 if [ ${#*} == 0 ]; then
   _help
 fi;
+
+echo "${PUPPET_SYNTAX_THREADS}" | grep -q '^[0-9]\+$' || syserr "max threads should be a number";
+
+test_bin() {
+  local desc=$1;
+  local bin=$2;
+  which ${bin} 2>&1 >/dev/null || syserr "${desc} executable (${bin}) not found on path";
+  [ -x $( which $bin ) ] || syserr "${desc} executable (${bin}) does not exist or is not executable";
+}
+test_bin 'puppet' ${PUPPET_BIN}
+test_bin 'erb' ${ERB_BIN}
+test_bin 'ruby' ${RUBY_BIN}
+
 #==========================================================
 # |              o          |
 # |    ,---.,---..,---.,---.|
