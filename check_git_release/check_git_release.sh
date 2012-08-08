@@ -47,7 +47,7 @@ info() {
 ## A submodule warning/error. Depends on $submodules_throws_error.
 # USAGE: sub <message>
 sub() {
-  if [ "$submods_tag_error" == "1" ]; then
+  if [ "$CHECK_GIT_SUBERROR" == "1" ]; then
     err $*;
   else
     warn $*
@@ -72,11 +72,18 @@ OPTIONS:
   -e, --dirty-tree-error 1|0      If enabled, a dirty tree will throw an error.
                                   If a submodule is dirty, the main tree is
                                   also dirty so this will automaticly fail.
+                                  You can also change this setting by setting
+                                  an environment variable called CHECK_GIT_DIRTY.
                                   Defaults to enabled (1).
   -m, --check-submodules 1|0      Enable or disable checking of submodules.
+                                  You can also change this setting by setting
+                                  an environment variable called CHECK_GIT_SUBMODULES.
                                   Defaults to enabled (1).
   -t, --submods-tag-error 1|0     If a submodule has no tag set, throw an error
-                                  or just warn. Defaults to warning only (0).
+                                  or just warn. You can also change this setting by
+                                  setting an environment variable called
+                                  CHECK_GIT_SUBERROR.
+                                  Defaults to warning only (0).
   -d, --debug                     Enable debugging of the script.
                                   Debugging is also enabled when a SCRIPTDEBUG
                                   environment variable has been set with a
@@ -108,9 +115,9 @@ fi;
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -e|--dirty-tree-error)  dirty_tree_error="$2"; shift;;
-    -m|--check-submodules)  check_submodules="$2"; shift;;
-    -t|--submods-tag-error) submods_tag_error="$2"; shift;;
+    -e|--dirty-tree-error)  CHECK_GIT_DIRTY="$2"; shift;;
+    -m|--check-submodules)  CHECK_GIT_SUBMODULES="$2"; shift;;
+    -t|--submods-tag-error) CHECK_GIT_SUBERROR="$2"; shift;;
     -h|--help)              _help;;
     -d|--debug)             SCRIPTDEBUG=1;;
     -*)                     syserr "Command option not recognized";;
@@ -129,13 +136,9 @@ done;
 # Git repository to check
 repo_path="${1-.}"
 # Check submodules
-check_submodules="${check_submodules-1}";
-submods_tag_error="${submods_tag_error-0}";
-# If set to 1, we will not error if the git tree is dirty.
-# This also applies to submodules. We want a completely clean tree or don't
-# care at all.
-ignore_dirty_states="${4-0}";
-dirty_tree_error="${dirty_tree_error-1}";
+CHECK_GIT_SUBMODULES="${CHECK_GIT_SUBMODULES-1}";
+CHECK_GIT_SUBERROR="${CHECK_GIT_SUBERROR-0}";
+CHECK_GIT_DIRTY="${CHECK_GIT_DIRTY-1}";
 
 
 #==========================================================
@@ -168,7 +171,7 @@ debug "current commit = '$commit'";
 #
 
 if ! git_check_dirty $repo_path $git_dir; then
-  if [ "$dirty_tree_error" == "1" ]; then
+  if [ "$CHECK_GIT_DIRTY" == "1" ]; then
     err "MAIN:SYS:the git tree seems to be dirty"
   else
     warn "MAIN:SYS:the git tree seems to be dirty"
@@ -182,7 +185,7 @@ debug "tag = '$tag'";
 [ "$tag" ] || tag="unknown";
 info "MAIN:TAG=${tag-unknown}";
 
-if [[ "$check_submodules" == "1" && -f $repo_path/.gitmodules ]]; then
+if [[ "$CHECK_GIT_SUBMODULES" == "1" && -f $repo_path/.gitmodules ]]; then
   SUBMODULES=$( cd $repo_path; git submodule status | \
     sed -e 's@^\s*\([a-z0-9]\+\)\s*\([^ ]\+\).*@\1 \2@';
   );
@@ -194,7 +197,7 @@ if [[ "$check_submodules" == "1" && -f $repo_path/.gitmodules ]]; then
 
     if ! git_check_dirty $submod_path $submod_git_dir; then
       debug "[submodule] is dirty"
-      if [ "$dirty_tree_error" == "1" ]; then
+      if [ "$CHECK_GIT_DIRTY" == "1" ]; then
         err "SUBMODULE:${submod_dir}:SYS:the git submodule tree seems to be dirty"
       else
         warn "SUBMODULE:${submod_dir}:SYS:the git submodule tree seems to be dirty";
