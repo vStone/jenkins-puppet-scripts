@@ -103,22 +103,39 @@ if [ $# == 0 ]; then
 fi
 
 PUPPET_LINT_THREADS="${PUPPET_LINT_THREADS-5}";
+PUPPET_LINT_BIN="${PUPPET_LINT_BIN-puppet-lint}";
+
 PUPPET_LINT_SKIP_TESTS="${PUPPET_LINT_SKIP_TESTS}";
 PUPPET_LINT_SKIP_EXAMPLES="${PUPPET_LINT_SKIP_EXAMPLES}";
-PUPPET_LINT_BIN="${PUPPET_LINT_BIN-puppet-lint}";
 PUPPET_LINT_LOG_FORMAT="${PUPPET_LINT_LOG_FORMAT}"
 [ ! "${PUPPET_LINT_LOG_FORMAT}" ] && PUPPET_LINT_LOG_FORMAT="%{path}:%{linenumber}:%{check}:%{KIND}:%{message}"
 
 PUPPET_LINT_FAILS_WARNING="${PUPPET_LINT_FAILS_WARNING}";
 PUPPET_LINT_FAILS_ERROR="${PUPPET_LINT_FAILS_ERROR-${PUPPET_LINT_FAILS_WARNING}}";
 
-echo "Checking puppet style (Using $PUPPET_LINT_THREADS threads):"
+[[ "${PUPPET_LINT_SKIP_TESTS}" == "true" || "${PUPPET_LINT_SKIP_TESTS}" == "yes" ]] && PUPPET_LINT_SKIP_TESTS="1";
+[[ "${PUPPET_LINT_SKIP_EXAMPLES}" == "true" || "${PUPPET_LINT_SKIP_EXAMPLES}" == "yes" ]] && PUPPET_LINT_SKIP_EXAMPLES="1";
+[[ "${PUPPET_LINT_FAILS_WARNING}" == "true" || "${PUPPET_LINT_FAILS_WARNING}" == "yes" ]] && PUPPET_LINT_FAILS_WARNING="1";
+[[ "${PUPPET_LINT_FAILS_ERROR}" == "true" || "${PUPPET_LINT_FAILS_ERROR}" == "yes" ]] && PUPPET_LINT_FAILS_ERROR="1";
 
+## TEST SETTINGS/ARGUMENTS ##
+echo "${PUPPET_LINT_THREADS}" | grep -q '^[0-9]\+$' || syserr "max threads should be a number";
+
+test_bin() {
+  local desc=$1;
+  local bin=$2;
+  which ${bin} 2>&1 >/dev/null || syserr "${desc} executable (${bin}) not found on path";
+  [ -x $( which $bin ) ] || syserr "${desc} executable (${bin}) does not exist or is not executable";
+}
+
+test_bin 'puppet-lint' "${PUPPET_LINT_BIN}"
+
+echo "Checking puppet style (Using $PUPPET_LINT_THREADS threads):"
 _find="find $* -iname '*.pp'"
-if [ "$PUPPET_LINT_SKIP_TESTS" ]; then
+if [ "$PUPPET_LINT_SKIP_TESTS" == "1" ]; then
   _find="${_find} ! -iwholename '*/tests/*'"
 fi;
-if [ "$PUPPET_LINT_SKIP_EXAMPLES" ]; then
+if [ "$PUPPET_LINT_SKIP_EXAMPLES" == "1" ]; then
   _find="${_find} ! -iwholename '*/examples/*'"
 fi;
 
@@ -132,8 +149,8 @@ eval $_find | xargs --no-run-if-empty -n1 -P${PUPPET_LINT_THREADS} \
     echo $line | grep -q ':ERROR:' && let "error_count++"
     echo $line
   done
-  [[ "$PUPPET_LINT_FAILS_ERROR" && $error_count -gt 0 ]] && exit 1;
-  [[ "$PUPPET_LINT_FAILS_WARNING" && $warning_count -gt 0 ]] && exit 1;
+  [[ "$PUPPET_LINT_FAILS_ERROR" == "1" && $error_count -gt 0 ]] && exit 1;
+  [[ "$PUPPET_LINT_FAILS_WARNING" == "1" && $warning_count -gt 0 ]] && exit 1;
   exit 0;
 ) || exit $?
 
