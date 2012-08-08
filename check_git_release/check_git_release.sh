@@ -140,6 +140,9 @@ CHECK_GIT_SUBMODULES="${CHECK_GIT_SUBMODULES-1}";
 CHECK_GIT_SUBERROR="${CHECK_GIT_SUBERROR-0}";
 CHECK_GIT_DIRTY="${CHECK_GIT_DIRTY-1}";
 
+[[ "${CHECK_GIT_SUBMODULES}" == "true" || "${CHECK_GIT_SUBMODULES}" == "yes" ]] && CHECK_GIT_SUBMODULES="1";
+[[ "${CHECK_GIT_SUBERROR}" == "true" || "${CHECK_GIT_SUBERROR}" == "yes" ]] && CHECK_GIT_SUBERROR="1";
+[[ "${CHECK_GIT_DIRTY}" == "true" || "${CHECK_GIT_DIRTY}" == "yes" ]] && CHECK_GIT_DIRTY="1";
 
 #==========================================================
 # |              |
