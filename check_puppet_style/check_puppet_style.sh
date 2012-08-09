@@ -42,6 +42,10 @@ OPTIONS:
                                 detected by puppet lint. This implies
                                 fail-on-error too. You can also specify a non
                                 empty environment variable FAIL_ON_WARN.
+  -x, --exclude-checks          A comma seperated list of puppet lint checks to
+                                exclude. You can check puppet-lint --help for all
+                                available tests.
+                                Example: '-x ensure_first_param,80chars,...'
   -h, --help                    Display this message and exit.
 
 The argument(s) should be a file or directories containing puppet manifests.
@@ -69,8 +73,8 @@ else
 fi;
 
 
-TEMP=`getopt -o -p:set:hl:fw \
-  -l puppet-lint-bin:skip-tests,skip-examples,max-threads,help,log-format,fail-on-error,fail-on-warning -n "$0" -- "$@";`
+TEMP=`getopt -o -p:set:hl:fwx: \
+  -l puppet-lint-bin:skip-tests,skip-examples,max-threads,help,log-format,fail-on-error,fail-on-warning,exclude-checks -n "$0" -- "$@";`
 
 if [[ $? != 0 ]]; then
   syserr "Error parsing arguments";
@@ -90,6 +94,7 @@ while [ $# -gt 0 ]; do
     -e|--skip-examples)       PUPPET_LINT_SKIP_EXAMPLES="1";;
     -f|--fail-on-error)       PUPPET_LINT_FAILS_ERROR="1";;
     -w|--fail-on-warning)     PUPPET_LINT_FAILS_WARNING="1";;
+    -x|--exclude-checks)      PUPPET_LINT_EXCLUDE_CHECKS="$2"; shift;;
     -h|--help)                _help;;
     -*)                       syserr "Command option '$1' not recognized";;
     --)                       shift; break;;
@@ -107,16 +112,21 @@ PUPPET_LINT_BIN="${PUPPET_LINT_BIN-puppet-lint}";
 
 PUPPET_LINT_SKIP_TESTS="${PUPPET_LINT_SKIP_TESTS}";
 PUPPET_LINT_SKIP_EXAMPLES="${PUPPET_LINT_SKIP_EXAMPLES}";
+
 PUPPET_LINT_LOG_FORMAT="${PUPPET_LINT_LOG_FORMAT}"
 [ ! "${PUPPET_LINT_LOG_FORMAT}" ] && PUPPET_LINT_LOG_FORMAT="%{path}:%{linenumber}:%{check}:%{KIND}:%{message}"
 
 PUPPET_LINT_FAILS_WARNING="${PUPPET_LINT_FAILS_WARNING}";
 PUPPET_LINT_FAILS_ERROR="${PUPPET_LINT_FAILS_ERROR-${PUPPET_LINT_FAILS_WARNING}}";
 
+PUPPET_LINT_EXCLUDE_CHECKS="${PUPPET_LINT_EXCLUDE_CHECKS}";
+
+## Accept 1, true, yes as boolean values. anything else is false really.
 [[ "${PUPPET_LINT_SKIP_TESTS}" == "true" || "${PUPPET_LINT_SKIP_TESTS}" == "yes" ]] && PUPPET_LINT_SKIP_TESTS="1";
 [[ "${PUPPET_LINT_SKIP_EXAMPLES}" == "true" || "${PUPPET_LINT_SKIP_EXAMPLES}" == "yes" ]] && PUPPET_LINT_SKIP_EXAMPLES="1";
 [[ "${PUPPET_LINT_FAILS_WARNING}" == "true" || "${PUPPET_LINT_FAILS_WARNING}" == "yes" ]] && PUPPET_LINT_FAILS_WARNING="1";
 [[ "${PUPPET_LINT_FAILS_ERROR}" == "true" || "${PUPPET_LINT_FAILS_ERROR}" == "yes" ]] && PUPPET_LINT_FAILS_ERROR="1";
+
 
 ## TEST SETTINGS/ARGUMENTS ##
 echo "${PUPPET_LINT_THREADS}" | grep -q '^[0-9]\+$' || syserr "max threads should be a number";
@@ -142,8 +152,15 @@ fi;
 warning_count=0
 error_count=0
 
+_puppet_lint="${PUPPET_LINT_BIN} --log-format '${PUPPET_LINT_LOG_FORMAT}'"
+if [ "$PUPPET_LINT_EXCLUDE_CHECKS" ]; then
+  for check in $( echo "$PUPPET_LINT_EXCLUDE_CHECKS" | tr ',' "\n") ; do
+    _puppet_lint="${_puppet_lint} --no-${check}-check";
+  done
+fi;
+
 eval $_find | xargs --no-run-if-empty -n1 -P${PUPPET_LINT_THREADS} \
-  $PUPPET_LINT_BIN --log-format "${PUPPET_LINT_LOG_FORMAT}" | (
+  $_puppet_lint --log-format "${PUPPET_LINT_LOG_FORMAT}" | (
   while read line; do
     echo $line | grep -q ':WARNING:' && let "warning_count++"
     echo $line | grep -q ':ERROR:' && let "error_count++"
