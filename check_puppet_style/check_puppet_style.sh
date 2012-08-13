@@ -166,8 +166,17 @@ eval $_find | xargs --no-run-if-empty -n1 -P${PUPPET_LINT_THREADS} \
     echo $line | grep -q ':ERROR:' && let "error_count++"
     echo $line
   done
-  [[ "$PUPPET_LINT_FAILS_ERROR" == "1" && $error_count -gt 0 ]] && exit 1;
-  [[ "$PUPPET_LINT_FAILS_WARNING" == "1" && $warning_count -gt 0 ]] && exit 1;
+  echo "Puppet lint finished";
+  echo "- Error count: ${error_count}";
+  echo "- Warn count: ${warning_count}";
+  if [[ "$PUPPET_LINT_FAILS_ERROR" == "1" && $error_count -gt 0 ]]; then
+    echo "=> PUPPET_LINT_FAILS_ERROR enabled and error_count above 0";
+    exit 1;
+  fi;
+  if [[ "$PUPPET_LINT_FAILS_WARNING" == "1" && $warning_count -gt 0 ]]; then
+    echo "=> PUPPET_LINT_FAILS_WARNING enabled and warning_count above 0";
+    exit 1;
+  fi;
   exit 0;
 ) || exit $?
 
