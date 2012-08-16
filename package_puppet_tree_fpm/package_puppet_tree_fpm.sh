@@ -25,6 +25,7 @@ _environment_variables=(
   PPKG_TYPE='Package type to produce.'
   PPKG_NAME_PREFIX='This will be added in front of the default name: <name prefix>-puppet-tree-<environment>'
   PPKG_TARGET='target directory to package'.
+  PPKG_GIT_ROOT='if you only build a subdir from your repository, set this to the repo root.'
   PPKG_META_INFO=--------------------------------
   PPKG_VENDOR='The vendor providing the package'
   PPKG_DESCRIPTION='Description of the package'
@@ -37,7 +38,6 @@ _environment_variables=(
   PPKG_EXCLUDE='files to exclude from the package.'
   PPKG_INTERNALS=--------------------------------
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
-  PPKG_GIT_ROOT='if you only build a subdir from your repository, set this to the repo root.'
   PPKG_PREFIX='override the prefix (not recommended).'
   PPKG_NAME='override the package name (not recommended).'
 
@@ -299,6 +299,7 @@ _ppkg_cmd="$_ppkg_cmd `_build_configs_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_excludes_cmd`";
 
 _ppkg_cmd="$_ppkg_cmd ${PPKG_TARGET}";
+
 debug "PPKG_CMD: $_ppkg_cmd";
 
 eval $_ppkg_cmd;
