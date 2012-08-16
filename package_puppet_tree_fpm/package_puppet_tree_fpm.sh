@@ -96,8 +96,10 @@ DESCRIPTION:
 OPTIONS:
 
   -e, --environment           Overrides the name of the environment to use.
-  -v, --version               Specify the package version. Defaults to 1.0 if
-                              not given.
+  -v, --version               Specify the package version. Defaults to 1.0.
+                              You can set this to 'GIT_TAG' if you prefer
+                              to use that as the default version number instead
+                              of 1.0.
   -i, --iteration             The iteration number to use.
   -t, --type                  Package type to build. Defaults to rpm.
   -h, --help                  Display this message and exit.
@@ -255,6 +257,14 @@ PPKG_NAME="${PPKG_NAME-puppet-tree-${PPKG_ENVIRONMENT}}";
 debug "PPKG_NAME: '${PPKG_NAME}'";
 
 ##----- PACKAGE VERSION -----##
+if [ "${PPKG_VERSION}" == "GIT_TAG" ]; then
+  PPKG_VERSION="${PPKG_DEFAULT_VERSION}"
+  if [ "${_GIT_TAG}" ]; then
+    PPKG_VERSION="${_GIT_TAG}";
+  else
+    warn "requested to use the git tag as version but could not find a tag. falling back to default."
+  fi;
+fi;
 PPKG_VERSION="${PPKG_VERSION-${PPKG_DEFAULT_VERSION}}";
 debug "PPKG_VERSION: '${PPKG_VERSION}'";
 
