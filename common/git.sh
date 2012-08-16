@@ -63,3 +63,12 @@ get_tag() {
     describe --tags --exact-match $commit 2>/dev/null || return 1;
 }
 
+get_branch() {
+  local work_tree="${1-.}"
+  local commit="${2-`get_current_commit $work_tree`}" || return 1;
+  local git_dir="${3-`get_git_dir $work_tree`}" || return 1;
+  git --git-dir=$git_dir --work-tree=$work_tree \
+    name-rev --name-only  HEAD 2>/dev/null || return 1;
+}
+
+# vim: set filetype=sh :
