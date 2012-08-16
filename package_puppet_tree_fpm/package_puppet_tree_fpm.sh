@@ -97,6 +97,14 @@ DESCRIPTION:
 OPTIONS:
 
   -e, --environment           Overrides the name of the environment to use.
+                              You can set this to 'GIT_BRANCH' to use the git branch
+                              (if available) as the environment name. This will alter
+                              the default behaviour by NOT appending (or using) the git
+                              tag.
+                              Works well together  with 'GIT_TAG' as version
+                              number. To also use this for your release branch,
+                              change PPKG_GIT_RELEASE_BRANCH to sth that would not
+                              be used... ex: '_this_release_uses_alternative_naming_'.
   -v, --version               Specify the package version. Defaults to 1.0.
                               You can set this to 'GIT_TAG' if you prefer
                               to use that as the default version number instead
@@ -217,7 +225,7 @@ debug "_GIT_BRANCH: '${_GIT_BRANCH}'";
 
 ##----- PACKAGE ENVIRONMENT -----##
 # environment has been specified.
-if [ "$PPKG_ENVIRONMENT" ]; then
+if [[ "${PPKG_ENVIRONMENT}" && "${PPKG_ENVIRONMENT}" != "GIT_BRANCH" ]]; then
   debug "Environment has been specified"
 # do we have a branch?
 elif [ "${_GIT_BRANCH}" ]; then
@@ -233,7 +241,7 @@ elif [ "${_GIT_BRANCH}" ]; then
       PPKG_ENVIRONMENT="${_GIT_BRANCH}";
     fi
   else
-    if [ "${GIT_TAG}" ]; then
+    if [[ "${GIT_TAG}" && "${PPKG_ENVIRONMENT}" != "GIT_BRANCH" ]]; then
       PPKG_ENVIRONMENT="${_GIT_BRANCH}-${_GIT_TAG}"
     else
       PPKG_ENVIRONMENT="${_GIT_BRANCH}";
@@ -241,6 +249,7 @@ elif [ "${_GIT_BRANCH}" ]; then
   fi
 else
   # errrr dno what to do now!
+  PPKG_ENVIRONMENT="";
   err "No git branch detected. You should provide the environment name using the options or the PPKG_ENVIRONMENT variable"
   exit 1;
 fi
