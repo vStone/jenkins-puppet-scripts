@@ -38,6 +38,7 @@ _environment_variables=(
   PPKG_EXCLUDE='files to exclude from the package.'
   PPKG_INTERNALS=--------------------------------
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
+  PPKG_DEFAULT_VERSION='override the default version (which is 1.0)'
   PPKG_PREFIX='override the prefix (not recommended).'
   PPKG_NAME='override the package name (not recommended).'
 
@@ -188,6 +189,8 @@ PPKG_TARGET="${PPKG_TARGET-${1}}";
 [ -d "$PPKG_TARGET" ] || syserr "TARGET is not a folder (${PPKG_TARGET})!"
 debug "PPKG_TARGET: '${PPKG_TARGET}'";
 
+PPKG_DEFAULT_VERSION="${PPKG_DEFAULT_VERSION-1.0}"
+
 ##----- GIT RELATED SETTINGS -----##
 PPKG_GIT_RELEASE_BRANCH="${PPKG_GIT_RELEASE_BRANCH-master}";
 debug "PPKG_GIT_RELEASE_BRANCH: '${PPKG_GIT_RELEASE_BRANCH}'";
@@ -249,7 +252,7 @@ PPKG_NAME="${PPKG_NAME-puppet-tree-${PPKG_ENVIRONMENT}}";
 debug "PPKG_NAME: '${PPKG_NAME}'";
 
 ##----- PACKAGE VERSION -----##
-PPKG_VERSION="${PPKG_VERSION-1.0}";
+PPKG_VERSION="${PPKG_VERSION-${PPKG_DEFAULT_VERSION}}";
 debug "PPKG_VERSION: '${PPKG_VERSION}'";
 
 ##----- PACKAGE ITERATION -----##
