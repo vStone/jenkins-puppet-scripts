@@ -227,8 +227,11 @@ elif [ "${_GIT_BRANCH}" ]; then
       PPKG_ENVIRONMENT="${_GIT_BRANCH}";
     fi
   else
-    # no release branch so use the branch name.
-    PPKG_ENVIRONMENT="${_GIT_BRANCH}";
+    if [ "${GIT_TAG}" ]; then
+      PPKG_ENVIRONMENT="${_GIT_BRANCH}-${_GIT_TAG}"
+    else
+      PPKG_ENVIRONMENT="${_GIT_BRANCH}";
+    fi
   fi
 else
   # errrr dno what to do now!
