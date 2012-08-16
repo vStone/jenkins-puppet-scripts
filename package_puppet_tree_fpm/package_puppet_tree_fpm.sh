@@ -36,6 +36,7 @@ _environment_variables=(
   PPKG_DEPENDENCIES='comma seperated list of dependencies'
   PPKG_CONFIGS='comma seperated list of files to mark as configuration. we will prepend the PREFIX to relative files'
   PPKG_EXCLUDE='files to exclude from the package.'
+  PPKG_PROVIDES='comma seperated list of provides'
   PPKG_INTERNALS=--------------------------------
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
   PPKG_DEFAULT_VERSION='override the default version (which is 1.0)'
@@ -135,6 +136,9 @@ _build_configs_cmd() {
     cmd="${cmd} --config-files '$cfg'";
   done;
   echo "$cmd";
+}
+_build_provides_cmd() {
+  _build_array_cmd "${PPKG_PROVIDES}" "--provides"
 }
 
 _build_array_cmd() {
@@ -289,7 +293,7 @@ PPKG_URL="${PPKG_URL}";
 PPKG_DEPENDENCIES="${PPKG_DEPENDENCIES-puppet}"; #handled
 PPKG_CONFIGS="${PPKG_CONFIGS}";
 PPKG_EXCLUDE="${PPKG_EXCLUDE-.git*}";
-
+PPKG_PROVIDES="${PPKG_PROVIDES}";
 #==========================================================
 # |              o          |
 # |    ,---.,---..,---.,---.|
@@ -313,6 +317,7 @@ _ppkg_cmd="$_ppkg_cmd --prefix ${PPKG_PREFIX}";
 _ppkg_cmd="$_ppkg_cmd `_build_deps_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_configs_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_excludes_cmd`";
+_ppkg_cmd="$_ppkg_cmd `_build_provides_Cmd`";
 
 _ppkg_cmd="$_ppkg_cmd ${PPKG_TARGET}";
 
