@@ -166,7 +166,8 @@ _build_array_cmd() {
 if `getopt -T >/dev/null 2>&1` ; [ $? = 4 ] ; then
   true; # Enhanced getopt.
 else
-  syserr "You are using an old getopt version $(getopt -V)";
+  err "You are using an old getopt version $(getopt -V)";
+  exit 1;
 fi;
 
 
@@ -174,7 +175,8 @@ TEMP=`getopt -o -e:v:i:t:h \
   -l environment:,version:,iteration:,type:,help -n "$0" -- "$@"`;
 
 if [[ $? != 0 ]]; then
-  syserr "Error parsing arguments";
+  err "Error parsing arguments";
+  exit 1;
 fi;
 
 while [ $# -gt 0 ]; do
@@ -184,7 +186,7 @@ while [ $# -gt 0 ]; do
     -i|--iteration)       PPKG_ITERATION="$2"; shift;;
     -t|--type)            PPKG_TYPE="$2"; shift;;
     -h|--help)            _help;;
-    -*)                   syserr "Command option '$1' not recognized";;
+    -*)                   err "Command option '$1' not recognized"; exit 1;;
     --)                   shift; break;;
     *)                    break;;
   esac;
@@ -201,7 +203,11 @@ fi;
 
 ##---- TARGET FOLDER -----##
 PPKG_TARGET="${PPKG_TARGET-${1}}";
-[ -d "$PPKG_TARGET" ] || syserr "TARGET is not a folder (${PPKG_TARGET})!"
+if [ ! -d "$PPKG_TARGET" ]; then 
+  err "TARGET is not a folder (${PPKG_TARGET})!"
+  exit 1;
+fi;
+
 debug "PPKG_TARGET: '${PPKG_TARGET}'";
 
 PPKG_DEFAULT_VERSION="${PPKG_DEFAULT_VERSION-1.0}"
