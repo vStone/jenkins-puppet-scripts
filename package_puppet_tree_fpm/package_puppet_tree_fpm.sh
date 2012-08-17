@@ -333,7 +333,7 @@ _ppkg_cmd="$_ppkg_cmd --prefix ${PPKG_PREFIX}";
 _ppkg_cmd="$_ppkg_cmd `_build_deps_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_configs_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_excludes_cmd`";
-_ppkg_cmd="$_ppkg_cmd `_build_provides_Cmd`";
+_ppkg_cmd="$_ppkg_cmd `_build_provides_cmd`";
 
 _ppkg_cmd="$_ppkg_cmd ${PPKG_TARGET}";
 
