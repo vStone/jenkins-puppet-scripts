@@ -35,7 +35,7 @@ _environment_variables=(
   PPKG_SYS=--------------------------------
   PPKG_DEPENDENCIES='comma seperated list of dependencies'
   PPKG_CONFIGS='comma seperated list of files to mark as configuration. we will prepend the PREFIX to relative files'
-  PPKG_EXCLUDE='files to exclude from the package.'
+  PPKG_EXCLUDES='files to exclude from the package.'
   PPKG_PROVIDES='comma seperated list of provides'
   PPKG_INTERNALS=--------------------------------
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
@@ -346,7 +346,7 @@ PPKG_URL="${PPKG_URL}";
 ##----- DEPENDENCIES -----##
 PPKG_DEPENDENCIES="${PPKG_DEPENDENCIES-puppet}"; #handled
 PPKG_CONFIGS="${PPKG_CONFIGS}";
-PPKG_EXCLUDE="${PPKG_EXCLUDE-**/.git*}";
+PPKG_EXCLUDES="${PPKG_EXCLUDES-**/.git*}";
 PPKG_PROVIDES="${PPKG_PROVIDES}";
 #==========================================================
 # |              o          |
