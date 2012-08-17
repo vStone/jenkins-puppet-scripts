@@ -39,6 +39,8 @@ _environment_variables=(
   PPKG_PROVIDES='comma seperated list of provides'
   PPKG_INTERNALS=--------------------------------
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
+  PPKG_NO_RELEASE='set this to something if this is NOT a release. This resolves some issues where a tag is in multiple branches'
+  PPKG_GIT_FORCE_BRANCH='force to only build this branch. fails if the current commit is not on that branch'
   PPKG_DEFAULT_VERSION='override the default version (which is 1.0)'
   PPKG_PREFIX='override the prefix (not recommended).'
   PPKG_NAME='override the package name (not recommended).'
@@ -225,7 +227,39 @@ debug "_GIT_DIR: '${_GIT_DIR}'"
 
 if [ "$_GIT_DIR" ]; then
   _GIT_TAG=`get_tag $PPKG_GIT_ROOT` || warn "could not find a git tag"
-  _GIT_BRANCH=`get_branch $PPKG_GIT_ROOT` || warn "could not find the active git branch";
+
+  ## Expanded branch logic. We ran into a problem when we are in a
+  # detached state and the commit was in several branches.
+
+
+  _GIT_BRANCHES=`get_all_branches $PPKG_GIT_ROOT | grep "remotes/*" | grep -o '[^/]\+$'`;
+  # we are forcing the use of this branch. Can we?
+  if [ "$PPKG_GIT_FORCE_BRANCH" ]; then
+    debug "Enforcing git branch: '${PPKG_GIT_FORCE_BRANCH}'";
+    if echo "${_GIT_BRANCHES}" | grep -q "${PPKG_GIT_FORCE_BRANCH}"; then
+      _GIT_BRANCHES="${PPKG_GIT_FORCE_BRANCH}";
+    else
+      err "Forcing the use of branch '${PPKG_GIT_FORCE_BRANCH}' but this branch does not have the current commit."
+      exit 1;
+    fi
+  else
+    # Are we enforcing NO_RELEASE or there is no tag? get rid of the release branch and recheck the branch list.
+    [[ "${PPKG_NO_RELEASE}" || ! "${_GIT_TAG}" ]] && _GIT_BRANCHES=`echo "${_GIT_BRANCHES}" | grep -v "${PPKG_GIT_RELEASE_BRANCH}"`
+    # Are we NOT enforcing NO_RELEASE? Is there a tag on the release branch? if yes, use it, if not, remove it.
+    if [[ "${_GIT_TAG}" && $(echo "${_GIT_BRANCHES}" | grep -q "${PPKG_GIT_RELEASE_BRANCH}" ) ]]; then
+      _GIT_BRANCHES="${PPKG_GIT_RELEASE_BRANCH}";
+    fi
+    # Are there multiple something elses? Pick one and warn about it.
+  fi;
+
+  debug "_GIT_BRANCHES: '${_GIT_BRANCHES}'";
+  if [ `echo "${_GIT_BRANCHES}" | wc -l` == 1 ]; then
+    # there is only one branch, use that!
+    _GIT_BRANCH="${_GIT_BRANCHES}";
+  else
+    warn "Multiple branches contain this commit! Defaulting to the first one";
+    _GIT_BRANCH="`echo "${_GIT_BRANCHES}" | head -n1`";
+  fi;
 fi;
 debug "_GIT_TAG: '${_GIT_TAG}'";
 debug "_GIT_BRANCH: '${_GIT_BRANCH}'";
@@ -338,6 +372,8 @@ _ppkg_cmd="$_ppkg_cmd `_build_provides_cmd`";
 _ppkg_cmd="$_ppkg_cmd ${PPKG_TARGET}";
 
 debug "PPKG_CMD: $_ppkg_cmd";
+
+[ "${SCRIPTDEBUG}" ] && exit 0;
 
 eval $_ppkg_cmd;
 
