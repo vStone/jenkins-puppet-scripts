@@ -17,7 +17,9 @@ info() {
 }
 
 debug() {
-  [ "$SCRIPTDEBUG" ] && echo "$0: DEBUG: $*" 1>&2;
+  if [ "${SCRIPTDEBUG}" ]; then
+    echo "$0: DEBUG: $*" 1>&2;
+  fi;
 }
 
 
