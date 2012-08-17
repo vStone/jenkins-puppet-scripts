@@ -363,8 +363,8 @@ _ppkg_cmd="$_ppkg_cmd -v ${PPKG_VERSION} --iteration ${PPKG_ITERATION}";
 [ "${PPKG_DESCRIPTION}" ] && \
   _ppkg_cmd="$_ppkg_cmd --description '${PPKG_DESCRIPTION}'";
 [ "${PPKG_URL}" ] && _ppkg_cmd="$_ppkg_cmd --url '${PPKG_URL}'";
-[ "${PPKG_CATEGORY}" ] && _ppkg_cmd="$_ppkg_cmd" --category '${PPKG_CATEGORY}'";
-[ "${PPKG_VENDOR}" ] && _ppkg_cmd="$_ppkg_cmd" --vendor '${PPKG_VENDOR}'";
+[ "${PPKG_CATEGORY}" ] && _ppkg_cmd="$_ppkg_cmd --category '${PPKG_CATEGORY}'";
+[ "${PPKG_VENDOR}" ] && _ppkg_cmd="$_ppkg_cmd --vendor '${PPKG_VENDOR}'";
 [ "${PPKG_MAINTAINER}" ] && _ppkg_cmd="$_ppkg_cmd -m '${PPKG_MAINTAINER}'";
 
 _ppkg_cmd="$_ppkg_cmd --prefix ${PPKG_PREFIX}";
