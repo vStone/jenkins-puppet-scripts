@@ -97,14 +97,15 @@ DESCRIPTION:
 OPTIONS:
 
   -e, --environment           Overrides the name of the environment to use.
-                              You can set this to 'GIT_BRANCH' to use the git branch
-                              (if available) as the environment name. This will alter
-                              the default behaviour by NOT appending (or using) the git
-                              tag.
+                              You can set this to 'GIT_BRANCH' to use the git
+                              branch (if available) as the environment name.
+                              This will alter the default behaviour by NOT
+                              appending (or using) the git tag.
                               Works well together  with 'GIT_TAG' as version
                               number. To also use this for your release branch,
-                              change PPKG_GIT_RELEASE_BRANCH to sth that would not
-                              be used... ex: '_this_release_uses_alternative_naming_'.
+                              change PPKG_GIT_RELEASE_BRANCH to sth that would
+                              not be used.
+                              ex: '_this_release_uses_alternative_naming_'.
   -v, --version               Specify the package version. Defaults to 1.0.
                               You can set this to 'GIT_TAG' if you prefer
                               to use that as the default version number instead
