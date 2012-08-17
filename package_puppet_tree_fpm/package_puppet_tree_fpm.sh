@@ -205,9 +205,13 @@ fi;
 
 ##---- TARGET FOLDER -----##
 PPKG_TARGET="${PPKG_TARGET-${1}}";
-if [ ! -d "$PPKG_TARGET" ]; then 
+if [ ! -d "$PPKG_TARGET" ]; then
   err "TARGET is not a folder (${PPKG_TARGET})!"
   exit 1;
+fi;
+
+if echo "$PPKG_NO_RELEASE" | grep -q "false\|0\|no"; then
+  PPKG_NO_RELEASE=""
 fi;
 
 debug "PPKG_TARGET: '${PPKG_TARGET}'";
