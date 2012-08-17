@@ -346,7 +346,7 @@ PPKG_URL="${PPKG_URL}";
 ##----- DEPENDENCIES -----##
 PPKG_DEPENDENCIES="${PPKG_DEPENDENCIES-puppet}"; #handled
 PPKG_CONFIGS="${PPKG_CONFIGS}";
-PPKG_EXCLUDE="${PPKG_EXCLUDE-.git*}";
+PPKG_EXCLUDE="${PPKG_EXCLUDE-**/.git*}";
 PPKG_PROVIDES="${PPKG_PROVIDES}";
 #==========================================================
 # |              o          |
