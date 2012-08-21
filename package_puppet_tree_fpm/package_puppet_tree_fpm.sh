@@ -96,6 +96,13 @@ DESCRIPTION:
   or if the BUILD_NUMBER environment variable is set, we will use that instead.
   BUILD_NUMBER is an environment variable that is automatically set by Jenkins.
 
+  If you have a file called .ppkg-settings in the folder to package,
+  it will be sourced before processing begins. You can use this file to specify
+  environment variables for this build. This file will be excluded from
+  packaging. Note that anything here will override any setting you provide (except the
+  target folder to package). You can work arround this by using (for example):
+  PPKG_NAME="${PPKG_NAME-myname}".
+
 OPTIONS:
 
   -e, --environment           Overrides the name of the environment to use.
@@ -140,13 +147,14 @@ _build_excludes_cmd() {
 }
 
 _build_configs_cmd() {
-  local cmd
-  local cfg
-  for cfg in $( echo "${PPKG_CONFIGS}" | tr ',' "\n" ); do
-    [ "${cfg:0:1}" == "/" ] || cfg="${PPKG_PREFIX}/$cfg";
-    cmd="${cmd} --config-files '$cfg'";
-  done;
-  echo "$cmd";
+#  local cmd
+#  local cfg
+#  for cfg in $( echo "${PPKG_CONFIGS}" | tr ',' "\n" ); do
+#    [ "${cfg:0:1}" == "/" ] || cfg="${PPKG_PREFIX}/$cfg";
+#    cmd="${cmd} --config-files '$cfg'";
+#  done;
+#  echo "$cmd";
+  _build_array_cmd "${PPKG_CONFIGS}" "--config-files"
 }
 _build_provides_cmd() {
   _build_array_cmd "${PPKG_PROVIDES}" "--provides"
@@ -209,6 +217,9 @@ if [ ! -d "$PPKG_TARGET" ]; then
   err "TARGET is not a folder (${PPKG_TARGET})!"
   exit 1;
 fi;
+
+[ -f "${PPKG_TARGET}/.ppkg-settings" ] && \
+  source "${PPKG_TARGET}/.ppkg-settings"
 
 if echo "$PPKG_NO_RELEASE" | grep -q "false\|0\|no"; then
   PPKG_NO_RELEASE=""
@@ -371,9 +382,10 @@ _ppkg_cmd="$_ppkg_cmd --prefix ${PPKG_PREFIX}";
 _ppkg_cmd="$_ppkg_cmd `_build_deps_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_configs_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_excludes_cmd`";
+[ -f "${PPKG_TARGET}/.ppkg-settings" ] && _ppkg_cmd="$_ppkg_cmd -x '**/.ppkg-settings'";
 _ppkg_cmd="$_ppkg_cmd `_build_provides_cmd`";
 
-_ppkg_cmd="$_ppkg_cmd ${PPKG_TARGET}";
+_ppkg_cmd="$_ppkg_cmd -C ${PPKG_TARGET} .";
 
 debug "PPKG_CMD: $_ppkg_cmd";
 
