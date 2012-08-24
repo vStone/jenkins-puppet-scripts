@@ -143,7 +143,9 @@ _build_deps_cmd() {
 }
 
 _build_excludes_cmd() {
+  set -f
   _build_array_cmd "${PPKG_EXCLUDES}" "--exclude"
+  set +f
 }
 
 _build_configs_cmd() {
