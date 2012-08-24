@@ -95,7 +95,7 @@ while [ $# -gt 0 ]; do
     -l|--log-format)          PUPPET_LINT_LOG_FORMAT="$2"; shift;;
     -s|--skip-tests)          PUPPET_LINT_SKIP_TESTS="1";;
     -e|--skip-examples)       PUPPET_LINT_SKIP_EXAMPLES="1";;
-    -c|--skip-custom)         PUPPET_LINT_SKIP_CUSTOM="${PUPPET_LINT_SKIP_CUSTOM}||$2"; shift;;
+    -c|--skip-custom)         PUPPET_LINT_SKIP_CUSTOM="${PUPPET_LINT_SKIP_CUSTOM}|$2"; shift;;
     -f|--fail-on-error)       PUPPET_LINT_FAILS_ERROR="1";;
     -w|--fail-on-warning)     PUPPET_LINT_FAILS_WARNING="1";;
     -x|--exclude-checks)      PUPPET_LINT_EXCLUDE_CHECKS="$2"; shift;;
@@ -154,9 +154,11 @@ if [ "$PUPPET_LINT_SKIP_EXAMPLES" == "1" ]; then
   _find="${_find} ! -iwholename '*/examples/*'"
 fi;
 if [ "$PUPPET_LINT_SKIP_CUSTOM" ]; then
-  for custom in $( echo "$PUPPET_LINT_SKIP_CUSTOM" | tr '||' "\n"); do
+  set -f
+  for custom in $( echo "${PUPPET_LINT_SKIP_CUSTOM}" | tr '|' "\n"); do
     [ "$custom" ] && _find="${_find} ! -iwholename '${custom}'"
   done;
+  set +f
 fi;
 
 
