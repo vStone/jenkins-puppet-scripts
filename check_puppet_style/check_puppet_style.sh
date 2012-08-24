@@ -33,6 +33,9 @@ OPTIONS:
   -e, --skip-examples           Skips the examples directory in puppet modules.
                                 You can also specify PUPPET_LINT_SKIP_EXAMPLES as an
                                 non empty environment variable.
+  -c, --skip-custom             Custom pattern to skip. This is added with ! -iwholename
+                                to the find command we are building. You can specify
+                                this option multiple times if needed.
   -f, --fail-on-error           By default, this script always exits with an
                                 exit status of 0. If this is enabled, we will
                                 exit with a status of 1 if any errors are
@@ -73,8 +76,8 @@ else
 fi;
 
 
-TEMP=`getopt -o -p:set:hl:fwx: \
-  -l puppet-lint-bin:skip-tests,skip-examples,max-threads,help,log-format,fail-on-error,fail-on-warning,exclude-checks -n "$0" -- "$@";`
+TEMP=`getopt -o -p:sec:t:hl:fwx: \
+  -l puppet-lint-bin:skip-tests,skip-examples,skip-custom:,max-threads,help,log-format,fail-on-error,fail-on-warning,exclude-checks -n "$0" -- "$@";`
 
 if [[ $? != 0 ]]; then
   syserr "Error parsing arguments";
@@ -92,6 +95,7 @@ while [ $# -gt 0 ]; do
     -l|--log-format)          PUPPET_LINT_LOG_FORMAT="$2"; shift;;
     -s|--skip-tests)          PUPPET_LINT_SKIP_TESTS="1";;
     -e|--skip-examples)       PUPPET_LINT_SKIP_EXAMPLES="1";;
+    -c|--skip-custom)         PUPPET_LINT_SKIP_CUSTOM="${PUPPET_LINT_SKIP_CUSTOM}||$2"; shift;;
     -f|--fail-on-error)       PUPPET_LINT_FAILS_ERROR="1";;
     -w|--fail-on-warning)     PUPPET_LINT_FAILS_WARNING="1";;
     -x|--exclude-checks)      PUPPET_LINT_EXCLUDE_CHECKS="$2"; shift;;
@@ -112,6 +116,7 @@ PUPPET_LINT_BIN="${PUPPET_LINT_BIN-puppet-lint}";
 
 PUPPET_LINT_SKIP_TESTS="${PUPPET_LINT_SKIP_TESTS}";
 PUPPET_LINT_SKIP_EXAMPLES="${PUPPET_LINT_SKIP_EXAMPLES}";
+PUPPET_LINT_SKIP_CUSTOM="${PUPPET_LINT_SKIP_CUSTOM}";
 
 PUPPET_LINT_LOG_FORMAT="${PUPPET_LINT_LOG_FORMAT}"
 [ ! "${PUPPET_LINT_LOG_FORMAT}" ] && PUPPET_LINT_LOG_FORMAT="%{path}:%{linenumber}:%{check}:%{KIND}:%{message}"
@@ -148,6 +153,12 @@ fi;
 if [ "$PUPPET_LINT_SKIP_EXAMPLES" == "1" ]; then
   _find="${_find} ! -iwholename '*/examples/*'"
 fi;
+if [ "$PUPPET_LINT_SKIP_CUSTOM" ]; then
+  for custom in $( echo "$PUPPET_LINT_SKIP_CUSTOM" | tr '||' "\n"); do
+    [ "$custom" ] && _find="${_find} ! -iwholename '${custom}'"
+  done;
+fi;
+
 
 warning_count=0
 error_count=0
