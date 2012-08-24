@@ -100,8 +100,21 @@ test_bin 'ruby' ${RUBY_BIN}
 
 echo "Checking puppet syntax (Using $PUPPET_SYNTAX_THREADS threads)"
 find $* -iname '*.pp' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} \
-  $PUPPET_BIN parser validate --ignoreimport || exit 1;
+  $PUPPET_BIN parser validate || puppet_error="1"
 
 echo "Checking ruby template syntax (Using $PUPPET_SYNTAX_THREADS threads)"
-find $* -iname '*.erb' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} \
-  sh -c "${ERB_BIN} -x -T '-' \$1 | ${RUBY_BIN} -c" || exit 1;
+find $* -iname '*.erb' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} -I file \
+  sh -c "${ERB_BIN} -x -T '-' file | ${RUBY_BIN} -c" || ruby_error="1";
+
+
+if [ "$puppet_error" == 1 ]; then
+  echo "Puppet syntax error detected.";
+  failed=1;
+fi;
+
+if [ "$ruby_error" == "1" ]; then
+  echo "Ruby template syntax error detected.";
+  failed=1;
+fi;
+
+[ "$failed" == "1" ] && exit 1;
