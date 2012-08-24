@@ -84,12 +84,16 @@ echo "${PUPPET_SYNTAX_THREADS}" | grep -q '^[0-9]\+$' || syserr "max threads sho
 test_bin() {
   local desc=$1;
   local bin=$2;
-  which ${bin} 2>&1 >/dev/null || syserr "${desc} executable (${bin}) not found on path";
+  which ${bin} >/dev/null 2>&1  || syserr "${desc} executable (${bin}) not found on path";
   [ -x $( which $bin ) ] || syserr "${desc} executable (${bin}) does not exist or is not executable";
 }
-test_bin 'puppet' ${PUPPET_BIN}
-test_bin 'erb' ${ERB_BIN}
-test_bin 'ruby' ${RUBY_BIN}
+test_bin 'puppet' "${PUPPET_BIN}"
+test_bin 'erb' "${ERB_BIN}"
+test_bin 'ruby' "${RUBY_BIN}"
+
+
+_ERB_HELPER="$(cd $(dirname "$0"); pwd)/check_puppet_erb_helper.sh";
+test_bin 'erb_helper_script' "${_ERB_HELPER}";
 
 #==========================================================
 # |              o          |
@@ -104,7 +108,7 @@ find $* -iname '*.pp' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS
 
 echo "Checking ruby template syntax (Using $PUPPET_SYNTAX_THREADS threads)"
 find $* -iname '*.erb' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} -I file \
-  sh -c "${ERB_BIN} -x -T '-' file | ${RUBY_BIN} -c" || ruby_error="1";
+  sh -c "RUBY_BIN='${RUBY_BIN}' ERB_BIN='${ERB_BIN}' $_ERB_HELPER file" || ruby_error="1";
 
 
 if [ "$puppet_error" == 1 ]; then
