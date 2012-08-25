@@ -30,7 +30,7 @@ The following plugins (and their dependencies) are used for setting up the jobs.
   log or in log files. The warnings plugin has support for puppet-lint.
 * [Parameterized Trigger Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Trigger+Plugins):
   Triggers parametrized builds on other jobs.
-  [GIT Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin):
+* [GIT Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin):
   This plugin integrates GIT with Jenkins.
 * [GIT Parameter Plugin](https://github.com/lukanus/git-parameter):
   Adds ability to choose from git repository revisions or tags.
