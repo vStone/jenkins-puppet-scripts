@@ -95,6 +95,9 @@ test_bin 'ruby' "${RUBY_BIN}"
 _ERB_HELPER="$(cd $(dirname "$0"); pwd)/check_puppet_erb_helper.sh";
 test_bin 'erb_helper_script' "${_ERB_HELPER}";
 
+_PUPPET_HELPER="$(cd $(dirname "$0"); pwd)/check_puppet_syntax_helper.sh";
+test_bin 'puppet_helper_script' "${_PUPPET_HELPER}";
+
 #==========================================================
 # |              o          |
 # |    ,---.,---..,---.,---.|
@@ -103,8 +106,8 @@ test_bin 'erb_helper_script' "${_ERB_HELPER}";
 #           `---'
 
 echo "Checking puppet syntax (Using $PUPPET_SYNTAX_THREADS threads)"
-find $* -iname '*.pp' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} \
-  $PUPPET_BIN parser validate || puppet_error="1"
+find $* -iname '*.pp' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} -I file \
+  sh -c "PUPPET_BIN='${PUPPET_BIN}' $_PUPPET_HELPER file" || puppet_error="1";
 
 echo "Puppet error: $puppet_error";
 
