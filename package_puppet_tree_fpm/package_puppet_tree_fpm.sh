@@ -149,13 +149,6 @@ _build_excludes_cmd() {
 }
 
 _build_configs_cmd() {
-#  local cmd
-#  local cfg
-#  for cfg in $( echo "${PPKG_CONFIGS}" | tr ',' "\n" ); do
-#    [ "${cfg:0:1}" == "/" ] || cfg="${PPKG_PREFIX}/$cfg";
-#    cmd="${cmd} --config-files '$cfg'";
-#  done;
-#  echo "$cmd";
   _build_array_cmd "${PPKG_CONFIGS}" "--config-files"
 }
 _build_provides_cmd() {
