@@ -6,7 +6,7 @@ if [ ! -f "$f" ]; then
   exit 1;
 fi
 
-$PUPPET_BIN parser validate $f 2>&1 | while read line; do
+$PUPPET_BIN parser validate --color false --render-as s $f 2>&1 | while read line; do
     echo "PUPPET_SYNTAX:$f: $line";
 done;
-exit ${PIPESTATUS[1]}
+exit ${PIPESTATUS[0]}
