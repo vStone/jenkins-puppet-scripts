@@ -388,13 +388,3 @@ debug "PPKG_CMD: $_ppkg_cmd";
 
 eval $_ppkg_cmd;
 
-#fpm -t ${PKG_TYPE} -s dir -a all -n ${PPKG_NAME} -v ${VERSION} --iteration ${BUILD_NUMBER} \
-#  --description 'UnifiedPost Puppet-tree' \
-#  --url http://unifiedpost.com \
-#  --category UnifiedPost --vendor UnifiedPost \
-#  -m 'UnifiedPost <systeembeheer@unifiedpost.com>' \
-#  --config-files /etc/puppet/hiera.yaml \
-#  --exclude='.git*' \
-#  --verbose \
-#  --prefix /etc -d puppet puppet
-
