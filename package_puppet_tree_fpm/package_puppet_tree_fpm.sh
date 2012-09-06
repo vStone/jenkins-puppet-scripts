@@ -96,6 +96,8 @@ DESCRIPTION:
   or if the BUILD_NUMBER environment variable is set, we will use that instead.
   BUILD_NUMBER is an environment variable that is automatically set by Jenkins.
 
+PPKG-SETTINGS FILE
+
   If you have a file called .ppkg-settings in the folder to package,
   it will be sourced before processing begins. You can use this file to specify
   environment variables for this build. This file will be excluded from
@@ -158,10 +160,10 @@ _build_provides_cmd() {
 _build_array_cmd() {
   local cmd
   local item
-  local arr="$1"
+  local arr="${1// /…}"
   local opt="$2"
   for item in $( echo "${arr}" | tr ',' "\n" ); do
-    cmd="${cmd} ${opt} '${item}'";
+    cmd="${cmd} ${opt} '${item//…/ }'";
   done;
   echo "$cmd";
 }
