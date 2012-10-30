@@ -188,6 +188,8 @@ debug "tag = '$tag'";
 [ "$tag" ] || tag="unknown";
 info "MAIN:TAG=${tag-unknown}";
 
+echo $tag | grep -q '^[a-zA-Z0-9_]\+$' || err "MAIN:SYS:tag contains invalid characters: '${tag}' (allowed: alphanumeric and underscore)";
+
 if [[ "$CHECK_GIT_SUBMODULES" == "1" && -f $repo_path/.gitmodules ]]; then
   SUBMODULES=$( cd $repo_path; git submodule status | \
     sed -e 's@^\s*\([a-z0-9]\+\)\s*\([^ ]\+\).*@\1 \2@';
