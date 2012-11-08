@@ -139,8 +139,8 @@ e=$?
 
 [ "$x" == "0" ] && x="$e"
 
-test_should_be "single repository, bogus tag set [--no-tag-check]" \
-  "./check_git_release.sh --no-tag-check test_repo_dots" \
+test_should_be "single repository, bogus tag set [--tag-check false]" \
+  "./check_git_release.sh --tag-check false test_repo_dots" \
   "GIT_CHECK:INFO:MAIN:TAG=" 0
 e=$?
 

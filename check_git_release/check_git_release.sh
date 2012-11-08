@@ -108,8 +108,8 @@ else
  syserr "You are using an old getopt version $(getopt -V)";
 fi;
 
-TEMP=`getopt -o -e:m:t:dhn \
-  --long dirty-tree-error:,check-submodules:,submods-tag-error:,debug,help,no-tag-check \
+TEMP=`getopt -o -e:m:t:dhc: \
+  --long dirty-tree-error:,check-submodules:,submods-tag-error:,debug,help,tag-check: \
   -n "$0" -- "$@"`;
 
 if [[ $? != 0 ]]; then
@@ -121,7 +121,7 @@ while [ $# -gt 0 ]; do
     -e|--dirty-tree-error)  CHECK_GIT_DIRTY="$2"; shift;;
     -m|--check-submodules)  CHECK_GIT_SUBMODULES="$2"; shift;;
     -t|--submods-tag-error) CHECK_GIT_SUBERROR="$2"; shift;;
-    -n|--no-tag-check)      CHECK_GIT_NOTAG="0";;
+    -c|--tag-check)         CHECK_GIT_TAG="$2"; shift;;
     -h|--help)              _help;;
     -d|--debug)             SCRIPTDEBUG=1;;
     -*)                     syserr "Command option not recognized";;
@@ -140,7 +140,7 @@ done;
 # Git repository to check
 repo_path="${1-.}"
 # Check submodules
-CHECK_GIT_NOTAG=${CHECK_GIT_NOTAG-1}
+CHECK_GIT_TAG=${CHECK_GIT_TAG-1}
 CHECK_GIT_SUBMODULES="${CHECK_GIT_SUBMODULES-1}";
 CHECK_GIT_SUBERROR="${CHECK_GIT_SUBERROR-0}";
 CHECK_GIT_DIRTY="${CHECK_GIT_DIRTY-1}";
@@ -148,6 +148,7 @@ CHECK_GIT_DIRTY="${CHECK_GIT_DIRTY-1}";
 [[ "${CHECK_GIT_SUBMODULES}" == "true" || "${CHECK_GIT_SUBMODULES}" == "yes" ]] && CHECK_GIT_SUBMODULES="1";
 [[ "${CHECK_GIT_SUBERROR}" == "true" || "${CHECK_GIT_SUBERROR}" == "yes" ]] && CHECK_GIT_SUBERROR="1";
 [[ "${CHECK_GIT_DIRTY}" == "true" || "${CHECK_GIT_DIRTY}" == "yes" ]] && CHECK_GIT_DIRTY="1";
+[[ "${CHECK_GIT_TAG}" == "true" || "${CHECK_GIT_TAG}" == "yes" ]] && CHECK_GIT_TAG="1";
 
 #==========================================================
 # |              |
@@ -193,7 +194,7 @@ debug "tag = '$tag'";
 [ "$tag" ] || tag="unknown";
 info "MAIN:TAG=${tag-unknown}";
 
-if [[ "$CHECK_GIT_NOTAG" == "1" ]]; then
+if [[ "$CHECK_GIT_TAG" == "1" ]]; then
   echo $tag | grep -q '^[a-zA-Z0-9_]\+$' || err "MAIN:SYS:tag contains invalid characters: '${tag}' (allowed: alphanumeric and underscore)";
 fi;
 
