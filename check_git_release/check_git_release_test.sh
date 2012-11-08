@@ -72,7 +72,7 @@ test_should_be() {
   if eval "$command 2>&1" | grep -qz --color=always "$regex"; then
     ok "$test";
   else
-    nok "$test" "output '$regex' does not match";
+    nok "$test" "output '$regex' does not match"; return 1;
   fi;
 }
 
@@ -81,14 +81,14 @@ echo "Preparing test environment"
 echo "+ creating test_subrepo_tag"
 create_repo test_subrepo_tag
 create_file test_subrepo_tag VERSION "Version bump to 0.1" "Version 0.1";
-tag test_subrepo_tag "0.1"
+tag test_subrepo_tag "0_1"
 
 echo "+ create test_subrepo_notag"
 create_repo test_subrepo_notag
 
 echo "+ create test_subrepo_dirty"
 create_repo test_subrepo_dirty
-tag test_subrepo_dirty "0.1"
+tag test_subrepo_dirty "0_1"
 touch test_subrepo_dirty/dirty
 
 echo "+ creating test_repo";
@@ -100,7 +100,12 @@ echo "++ adding subrepo test_subrepo_dirty";
 add_submod test_repo test_subrepo_dirty
 echo "++ adding subrepo test_subrepo_tag";
 add_submod test_repo test_subrepo_tag
-tag test_repo "0.1"
+tag test_repo "0_1"
+
+echo "+ creating test_repo_dots"
+create_repo test_repo_dots
+create_file test_repo_dots VERSION "Version bump to 0.1" "Version 0.1";
+tag test_repo_dots "0.1"
 
 echo '#                     o              |              |'
 echo '# ,---..   .,---.,---..,---.,---.    |--- ,---.,---.|--- ,---.';
@@ -111,38 +116,83 @@ echo "#                           \`---'"
 
 #./check_git_release.sh test_repo 2>&1 >/dev/null
 #exit_should_be "single repository, no tag set" 1 $?
+
+
+
 test_should_be "single repository, no tag set [no args]" \
   "./check_git_release.sh test_subrepo_notag" \
   "GIT_CHECK:ERROR:MAIN:SYS:could not find any tag on path"
 
+x="$?"
+
 test_should_be "single repository, tag set [no args]" \
   "./check_git_release.sh test_subrepo_tag" \
   "GIT_CHECK:INFO:MAIN:TAG="
+e=$?
+
+[ "$x" == "0" ] && x="$e"
+
+test_should_be "single repository, bogus tag set [no args]" \
+  "./check_git_release.sh test_repo_dots" \
+  "GIT_CHECK:ERROR:MAIN:SYS:tag contains invalid" 1
+e=$?
+
+[ "$x" == "0" ] && x="$e"
+
+test_should_be "single repository, bogus tag set [--no-tag-check]" \
+  "./check_git_release.sh --no-tag-check test_repo_dots" \
+  "GIT_CHECK:INFO:MAIN:TAG=" 0
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 test_should_be "single_repository, dirty [no args]" \
   "./check_git_release.sh test_subrepo_dirty" \
   "GIT_CHECK:ERROR:MAIN:SYS:the git tree seems to be dirty" 1
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 test_should_be "single_repository, dirty [--dirty-tree-error 0]" \
   "./check_git_release.sh --dirty-tree-error 0 test_subrepo_dirty " \
   "GIT_CHECK:WARN:MAIN:SYS:the git tree seems to be dirty" 0
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 test_should_be "repo with submodules, tag set [no args]" \
   "./check_git_release.sh test_repo" \
   "GIT_CHECK:INFO:MAIN:TAG=" 0
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 test_should_be "repo with submodules, tag set [--submods-tag-error 1]" \
   "./check_git_release.sh --submods-tag-error 1 test_repo" \
   "GIT_CHECK:INFO:MAIN:TAG=" 1
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 touch test_repo/test_subrepo_dirty/dirty
 test_should_be "repo with submodules, dirty submodule [no args]" \
   "./check_git_release.sh test_repo" \
   "GIT_CHECK:ERROR:MAIN:SYS:the git tree seems to be dirty.*GIT_CHECK:ERROR:SUBMODULE:test_subrepo_dirty:SYS:the git submodule tree seems to be dirty" 1
+e=$?
+
+[ "$x" == "0" ] && x="$e"
 
 test_should_be "repo with submodules, dirty submodule [--dirty-tree-error 0]" \
   "./check_git_release.sh --dirty-tree-error 0 test_repo" \
   "GIT_CHECK:WARN:MAIN:SYS:the git tree seems to be dirty.*GIT_CHECK:WARN:SUBMODULE:test_subrepo_dirty:SYS:the git submodule tree seems to be dirty" 0
+e=$?
 
-echo "Cleaning up"
-rm -rf test_repo test_subrepo*
+[ "$x" == "0" ] && x="$e"
+
+if [ $x == "1" ]; then
+  echo "ERRORS found. Skipping cleanup"
+else
+  echo "Cleaning up"
+  rm -rf test_repo* test_subrepo*
+fi;
+exit $x;
