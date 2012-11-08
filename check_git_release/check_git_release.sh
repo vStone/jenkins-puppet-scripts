@@ -84,7 +84,9 @@ OPTIONS:
                                   setting an environment variable called
                                   CHECK_GIT_SUBERROR.
                                   Defaults to warning only (0).
-  -n, --no-tag-check              Disable the allowed character check on the tag
+  -c, --tag-check 1|0             Check for unwanted characters in the tag. You can
+                                  also change this setting by using CHECK_GIT_TAG.
+                                  Defaults to true (1).
                                   that was set. This is required if the tag will
                                   be the actual version of your package.
   -d, --debug                     Enable debugging of the script.
