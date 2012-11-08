@@ -84,6 +84,9 @@ OPTIONS:
                                   setting an environment variable called
                                   CHECK_GIT_SUBERROR.
                                   Defaults to warning only (0).
+  -n, --no-tag-check              Disable the allowed character check on the tag
+                                  that was set. This is required if the tag will
+                                  be the actual version of your package.
   -d, --debug                     Enable debugging of the script.
                                   Debugging is also enabled when a SCRIPTDEBUG
                                   environment variable has been set with a
@@ -105,8 +108,8 @@ else
  syserr "You are using an old getopt version $(getopt -V)";
 fi;
 
-TEMP=`getopt -o -e:m:t:dh \
-  --long dirty-tree-error:,check-submodules:,submods-tag-error:,debug,help \
+TEMP=`getopt -o -e:m:t:dhn \
+  --long dirty-tree-error:,check-submodules:,submods-tag-error:,debug,help,no-tag-check \
   -n "$0" -- "$@"`;
 
 if [[ $? != 0 ]]; then
@@ -118,6 +121,7 @@ while [ $# -gt 0 ]; do
     -e|--dirty-tree-error)  CHECK_GIT_DIRTY="$2"; shift;;
     -m|--check-submodules)  CHECK_GIT_SUBMODULES="$2"; shift;;
     -t|--submods-tag-error) CHECK_GIT_SUBERROR="$2"; shift;;
+    -n|--no-tag-check)      CHECK_GIT_NOTAG="0";;
     -h|--help)              _help;;
     -d|--debug)             SCRIPTDEBUG=1;;
     -*)                     syserr "Command option not recognized";;
@@ -136,6 +140,7 @@ done;
 # Git repository to check
 repo_path="${1-.}"
 # Check submodules
+CHECK_GIT_NOTAG=${CHECK_GIT_NOTAG-1}
 CHECK_GIT_SUBMODULES="${CHECK_GIT_SUBMODULES-1}";
 CHECK_GIT_SUBERROR="${CHECK_GIT_SUBERROR-0}";
 CHECK_GIT_DIRTY="${CHECK_GIT_DIRTY-1}";
@@ -188,7 +193,9 @@ debug "tag = '$tag'";
 [ "$tag" ] || tag="unknown";
 info "MAIN:TAG=${tag-unknown}";
 
-echo $tag | grep -q '^[a-zA-Z0-9_]\+$' || err "MAIN:SYS:tag contains invalid characters: '${tag}' (allowed: alphanumeric and underscore)";
+if [[ "$CHECK_GIT_NOTAG" == "1" ]]; then
+  echo $tag | grep -q '^[a-zA-Z0-9_]\+$' || err "MAIN:SYS:tag contains invalid characters: '${tag}' (allowed: alphanumeric and underscore)";
+fi;
 
 if [[ "$CHECK_GIT_SUBMODULES" == "1" && -f $repo_path/.gitmodules ]]; then
   SUBMODULES=$( cd $repo_path; git submodule status | \
