@@ -369,7 +369,7 @@ PPKG_PROVIDES="${PPKG_PROVIDES}";
 ## Building the command line for fpm.
 
 _ppkg_cmd="fpm -t ${PPKG_TYPE} -s dir -a all -n ${PPKG_NAME}";
-_ppkg_cmd="$_ppkg_cmd -v ${PPKG_VERSION} --iteration ${PPKG_ITERATION}";
+_ppkg_cmd="$_ppkg_cmd -v ${PPKG_VERSION} --epoch=1 --iteration ${PPKG_ITERATION}";
 [ "${PPKG_DESCRIPTION}" ] && \
   _ppkg_cmd="$_ppkg_cmd --description '${PPKG_DESCRIPTION}'";
 [ "${PPKG_URL}" ] && _ppkg_cmd="$_ppkg_cmd --url '${PPKG_URL}'";
