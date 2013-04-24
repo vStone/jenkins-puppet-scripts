@@ -24,6 +24,7 @@ _environment_variables=(
   PPKG_ITERATION='Set the package iteration.'
   PPKG_TYPE='Package type to produce.'
   PPKG_NAME_PREFIX='This will be added in front of the default name: <name prefix>-puppet-tree-<environment>'
+  PPKG_NAME_BASE='The base of the package name. This is prefixed by the name prefix and the environment is appended.'
   PPKG_TARGET='target directory to package'.
   PPKG_GIT_ROOT='if you only build a subdir from your repository, set this to the repo root.'
   PPKG_META_INFO=--------------------------------
@@ -316,10 +317,13 @@ debug "PPKG_PREFIX: '${PPKG_PREFIX}'";
 PPKG_NAME_PREFIX="${PPKG_NAME_PREFIX}"
 debug "PPKG_NAME_PREFIX: '${PPKG_NAME_PREFIX}'";
 
+PPKG_NAME_BASE="${PPKG_NAME_BASE-puppet-tree}"
+debug "PPKG_NAME_BASE: '${PPKG_NAME_BASE}'"
+
 if [[ ! "${PPKG_NAME}" && "${PPKG_NAME_PREFIX}" ]]; then
-  PPKG_NAME="${PPKG_NAME_PREFIX}-puppet-tree-${PPKG_ENVIRONMENT}";
+  PPKG_NAME="${PPKG_NAME_PREFIX}-${PPKG_NAME_BASE}-${PPKG_ENVIRONMENT}";
 fi
-PPKG_NAME="${PPKG_NAME-puppet-tree-${PPKG_ENVIRONMENT}}";
+PPKG_NAME="${PPKG_NAME-${PPKG_NAME_BASE}-${PPKG_ENVIRONMENT}}";
 debug "PPKG_NAME: '${PPKG_NAME}'";
 
 ##----- PACKAGE VERSION -----##
