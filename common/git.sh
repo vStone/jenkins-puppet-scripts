@@ -78,4 +78,22 @@ get_all_branches() {
   git --git-dir=$git_dir --work-tree=$work_tree \
     branch -a --contains $commit 2>/dev/null || return 1;
 }
+
+get_branch_best_match() {
+  local work_tree="${1-.}"
+  local commit="${2-`get_current_commit $work_tree`}" || return 1;
+  local git_dir="${3-`get_git_dir $work_tree`}" || return 1;
+  local _branches=`get_all_branches $work_tree $commit $git_dir` || return 1;
+  if `echo "$_branches" | grep -q '^\*[ ]*[a-z]\+'`; then
+    echo "$_branches" | grep -o '^\*.*$' | sed 's@^\*\s*@@'
+    return 0;
+  elif `echo "$_branches" | grep -q 'HEAD'`; then
+    echo "$_branches" | grep 'HEAD' | sed 's@.*\/\([a-zA-Z0-9_-]\+\)$@\1@'
+    return 0;
+  else
+    echo "$_branches" | grep -v '^*' | sed 's@.*\/\([a-zA-Z0-9_-]\+\)$@\1@' | uniq | head -n1
+    return 0;
+  fi;
+  return 1;
+}
 # vim: set filetype=sh :
