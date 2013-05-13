@@ -181,7 +181,8 @@ _map_branch_to_environment() {
       return 0;
     fi
   done;
-  return 1;
+  echo $branch
+  return 0;
 }
 
 ## getopts parsing
@@ -317,9 +318,8 @@ if [[ "${PPKG_ENVIRONMENT}" && "${PPKG_ENVIRONMENT}" != "GIT_BRANCH" ]]; then
 # do we have a branch?
 elif [ "${_GIT_BRANCH}" ]; then
   # is it the release branch?
-  mapped=`_map_branch_to_environment $_GIT_BRANCH`
-  if [ $? == 0 ]; then
-    PPKG_ENVIRONMENT="$mapped";
+  if [ "${PPKG_MAP_ENVIRONMENTS}" ]; then
+    PPKG_ENVIRONMENT=`_map_branch_to_environment $_GIT_BRANCH`;
   elif [ "${_GIT_BRANCH}" == "${PPKG_GIT_RELEASE_BRANCH}" ]; then
     # do we have a git tag?
     if [ "${_GIT_TAG}" ]; then
