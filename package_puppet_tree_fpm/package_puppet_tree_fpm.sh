@@ -41,6 +41,7 @@ _environment_variables=(
   PPKG_EXCLUDES='files to exclude from the package.'
   PPKG_PROVIDES='comma seperated list of provides'
   PPKG_INTERNALS=--------------------------------
+  PPKG_MAP_ENVIRONMENTS='A list of branch name to environment mappings. Must be <git branch>=<environment>. Seperate multiple values with spaces. This does not work for the GIT_RELEASE_BRANCH since that relies on the GIT_TAG for the environment name.'
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
   PPKG_NO_RELEASE='set this to something if this is NOT a release. This resolves some issues where a tag is in multiple branches'
   PPKG_GIT_FORCE_BRANCH='force to only build this branch. fails if the current commit is not on that branch'
@@ -171,6 +172,17 @@ _build_array_cmd() {
   echo "$cmd";
 }
 
+_map_branch_to_environment() {
+  local branch=$1
+  for map in $PPKG_MAP_ENVIRONMENTS; do
+    if echo $map | grep -q "^${branch}="; then
+      echo "${map##${branch}=}"
+      debug "ROUND REMAP: branch '${branch}' -> '${map##${branch}=}'"
+      return 0;
+    fi
+  done;
+  return 1;
+}
 
 ## getopts parsing
 if `getopt -T >/dev/null 2>&1` ; [ $? = 4 ] ; then
@@ -274,10 +286,14 @@ if [ "$_GIT_DIR" ]; then
     fi
   else
     # Are we enforcing NO_RELEASE or there is no tag? get rid of the release branch and recheck the branch list.
-    [[ "${PPKG_NO_RELEASE}" || ! "${_GIT_TAG}" ]] && _GIT_BRANCHES=`echo "${_GIT_BRANCHES}" | grep -v "${PPKG_GIT_RELEASE_BRANCH}"`
+    if [[ "${PPKG_NO_RELEASE}" || ! "${_GIT_TAG}" ]]; then
+      _GIT_BRANCHES=`echo "${_GIT_BRANCHES}" | grep -v "${PPKG_GIT_RELEASE_BRANCH}"`
+      debug "PPKG_NO_RELEASE set ('${NO_RELEASE}') or no GIT TAG found: removed the git release branch ('${PPKG_GIT_RELEASE_BRANCH}')";
+    fi;
     # Are we NOT enforcing NO_RELEASE? Is there a tag on the release branch? if yes, use it, if not, remove it.
     if [[ "${_GIT_TAG}" && $(echo "${_GIT_BRANCHES}" | grep -q "${PPKG_GIT_RELEASE_BRANCH}" ) ]]; then
       _GIT_BRANCHES="${PPKG_GIT_RELEASE_BRANCH}";
+      debug "Tag found on the release branch ('${PPKG_GIT_RELEASE_BRANCH}')";
     fi
     # Are there multiple something elses? Pick one and warn about it.
   fi;
@@ -301,7 +317,10 @@ if [[ "${PPKG_ENVIRONMENT}" && "${PPKG_ENVIRONMENT}" != "GIT_BRANCH" ]]; then
 # do we have a branch?
 elif [ "${_GIT_BRANCH}" ]; then
   # is it the release branch?
-  if [ "${_GIT_BRANCH}" == "${PPKG_GIT_RELEASE_BRANCH}" ]; then
+  mapped=`_map_branch_to_environment $_GIT_BRANCH`
+  if [ $? == 0 ]; then
+    PPKG_ENVIRONMENT="$mapped";
+  elif [ "${_GIT_BRANCH}" == "${PPKG_GIT_RELEASE_BRANCH}" ]; then
     # do we have a git tag?
     if [ "${_GIT_TAG}" ]; then
       # use it
