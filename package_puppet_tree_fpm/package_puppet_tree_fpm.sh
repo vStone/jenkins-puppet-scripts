@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="0.1"
+
 #==========================================================
 # ,----               |    o
 # |__. .   .,---.,---.|--- .,---.,---.,---.
@@ -218,6 +220,21 @@ fi;
 
 [ -f "${PPKG_TARGET}/.ppkg-settings" ] && \
   source "${PPKG_TARGET}/.ppkg-settings"
+
+if [ "$PPKG_MIN_VERSION" ]; then
+  if [ $PPKG_MIN_VERSION == $VERSION ]; then
+    debug "Required version is current version.";
+  else
+    _vspec=$( echo -e $PPKG_MIN_VERSION"\n"$VERSION | sort -t'.' -g | tail -n 1)
+    if [ "$_vspec" == "${PPKG_MIN_VERSION}" ]; then
+      err "You requested a minimum script version '${PPKG_MIN_VERSION}' but current version is '${VERSION}'."
+      exit 1;
+    else
+      debug "Required version is newer.";
+    fi;
+  fi;
+
+fi;
 
 if echo "$PPKG_NO_RELEASE" | grep -q "false\|0\|no"; then
   PPKG_NO_RELEASE=""
