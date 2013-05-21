@@ -46,6 +46,7 @@ _environment_variables=(
   PPKG_NO_RELEASE='set this to something if this is NOT a release. This resolves some issues where a tag is in multiple branches'
   PPKG_GIT_FORCE_BRANCH='force to only build this branch. fails if the current commit is not on that branch'
   PPKG_DEFAULT_VERSION='override the default version (which is 1.0)'
+  PPKG_PREFIX_BASE="Default prefix base."
   PPKG_PREFIX='override the prefix (not recommended).'
   PPKG_NAME='override the package name (not recommended).'
 
@@ -346,7 +347,10 @@ fi
 debug "PPKG_ENVIRONMENT: '${PPKG_ENVIRONMENT}'";
 
 ##----- PACKAGE PREFIX -----##
-PPKG_PREFIX="${PPKG_PREFIX-/etc/puppet/environments/${PPKG_ENVIRONMENT}}";
+PPKG_PREFIX_BASE="${PPKG_PREFIX_BASE-/etc/puppet/environments}";
+debug "PPKG_PREFIX_BASE: '${PPKG_PREFIX_BASE}'";
+
+PPKG_PREFIX="${PPKG_PREFIX-${PPKG_PREFIX_BASE}/${PPKG_ENVIRONMENT}}";
 debug "PPKG_PREFIX: '${PPKG_PREFIX}'";
 
 ##----- PACKAGE NAME -----##
