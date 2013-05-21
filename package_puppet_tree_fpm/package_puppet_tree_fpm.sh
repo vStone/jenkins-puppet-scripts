@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.1"
+VERSION="0.2"
 
 #==========================================================
 # ,----               |    o
@@ -277,6 +277,7 @@ if [ "$_GIT_DIR" ]; then
 
 
   _GIT_BRANCHES=`get_all_branches $PPKG_GIT_ROOT | grep "remotes/*" | grep -o '[^/]\+$'`;
+  debug "_GIT_BRANCHES (raw): '${_GIT_BRANCHES}'";
   # we are forcing the use of this branch. Can we?
   if [ "$PPKG_GIT_FORCE_BRANCH" ]; then
     debug "Enforcing git branch: '${PPKG_GIT_FORCE_BRANCH}'";
