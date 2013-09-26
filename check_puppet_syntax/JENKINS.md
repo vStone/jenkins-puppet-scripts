@@ -8,7 +8,7 @@ You can obviously choose the name for the parser and the trend graph.
 
 __Regular Expression:__
 ```
-^PUPPET_SYNTAX[^:]*:(.*):.*(warning|err):\s*(.*)$
+^PUPPET_SYNTAX[^:]*:(.*):.*(warning|err|Error):\s*(.*)$
 ```
 
 __Mapping Script:__
@@ -27,8 +27,9 @@ if (message =~ /puppet help parser validate/ ) {
     return false
 }
 
-if (category == "err") {
+if (category == "err" || category == "Error") {
  prio = Priority.HIGH
+ category = "error"
 }
 // Catch line numbers at the end of the file:100
 def m = message =~ /:(\d+)$/
