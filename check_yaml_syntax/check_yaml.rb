@@ -8,13 +8,13 @@ def check_file(filename)
   begin
     r = YAML.load_file(filename)
   rescue Errno::ENOENT => ex
-    $stderr.print "#{filename}:ERROR:0:File does not exist!\n"
+    $stderr.print "YAML_SYNTAX:#{filename}:ERROR:0:File does not exist!\n"
     status=1
   rescue Psych::SyntaxError => ex
-    $stderr.print "#{filename}:ERROR:#{ex.line}:#{ex.problem}\n"
+    $stderr.print "YAML_SYNTAX:#{filename}:ERROR:#{ex.line}:#{ex.problem}\n"
     status=1
   rescue Exception => ex
-    $stderr.print "#{filename}:ERROR:0:Unknown error: #{ex.message}\n"
+    $stderr.print "YAML_SYNTAX:#{filename}:ERROR:0:Unknown error: #{ex.message}\n"
   else
     ## Print OK?
   end
@@ -23,7 +23,7 @@ end
 
 ARGV.each do |file|
   if File.directory?(file)
-    $stdout.print "#{file}:INFO:Is a directory. Scanning for *.yaml\n"
+    $stdout.print "YAML_SYNTAX:#{file}:INFO:Is a directory. Scanning for *.yaml\n"
     Dir.glob("#{file}/**/*.yaml").each do |f|
       s = check_file(f)
       status = s unless s == 0
