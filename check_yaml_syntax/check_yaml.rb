@@ -14,7 +14,7 @@ def check_file(filename)
     $stderr.print "#{filename}:ERROR:#{ex.line}:#{ex.problem}\n"
     status=1
   rescue Exception => ex
-    $stderr.print "Something else went wrong"
+    $stderr.print "#{filename}:ERROR:0:Unknown error: #{ex.message}\n"
   else
     ## Print OK?
   end
