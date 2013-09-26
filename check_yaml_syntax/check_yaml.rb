@@ -18,6 +18,10 @@ def check_file(filename)
   else
     ## Print OK?
   end
+  unless r.is_a?(Hash)
+    $stderr.print "YAML_SYNTAX:#{filename}:ERROR:0:YAML file does not contain a hash\n"
+    status=1
+  end
   status
 end
 
