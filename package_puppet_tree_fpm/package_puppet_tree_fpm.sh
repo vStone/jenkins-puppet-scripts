@@ -40,6 +40,7 @@ _environment_variables=(
   PPKG_CONFIGS='comma seperated list of files to mark as configuration. we will prepend the PREFIX to relative files'
   PPKG_EXCLUDES='files to exclude from the package.'
   PPKG_PROVIDES='comma seperated list of provides'
+  PPKG_FPM_OPTIONS='directly pass through options to fpm'
   PPKG_INTERNALS=--------------------------------
   PPKG_MAP_ENVIRONMENTS='A list of branch name to environment mappings. Must be <git branch>=<environment>. Seperate multiple values with spaces. This does not work for the GIT_RELEASE_BRANCH since that relies on the GIT_TAG for the environment name.'
   PPKG_GIT_RELEASE_BRANCH='name of the branch which contains releases'
@@ -395,6 +396,7 @@ PPKG_DESCRIPTION="${PPKG_DESCRIPTION}";
 PPKG_CATEGORY="${PPKG_CATEGORY}";
 PPKG_MAINTAINER="${PPKG_MAINTAINER}";
 PPKG_URL="${PPKG_URL}";
+PPKG_FPM_OPTIONS="${PPKG_FPM_OPTIONS}";
 
 ##----- DEPENDENCIES -----##
 PPKG_DEPENDENCIES="${PPKG_DEPENDENCIES-puppet}"; #handled
@@ -428,7 +430,7 @@ _ppkg_cmd="$_ppkg_cmd `_build_configs_cmd`";
 _ppkg_cmd="$_ppkg_cmd `_build_excludes_cmd`";
 [ -f "${PPKG_TARGET}/.ppkg-settings" ] && _ppkg_cmd="$_ppkg_cmd -x '**/.ppkg-settings'";
 _ppkg_cmd="$_ppkg_cmd `_build_provides_cmd`";
-
+_ppkg_cmd="$_ppkg_cmd ${PPKG_FPM_OPTIONS}";
 _ppkg_cmd="$_ppkg_cmd -C ${PPKG_TARGET} .";
 
 debug "PPKG_CMD: $_ppkg_cmd";
