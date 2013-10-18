@@ -18,7 +18,7 @@ USAGE: $0 <options> <folder|file> [...]
 Checks your puppet manifests with puppet-lint.
 
 OPTIONS:
-  -t, --max-threads NUMER       The maximum number of simultaneous threads to
+  -t, --max-threads NUMBER      The maximum number of simultaneous threads to
                                 use. You can also specify PUPPET_LINT_THREADS as an
                                 environment variable. Defaults to 5.
   -p, --puppet-lint-bin PATH    Path to puppet-lint executable. Can also be
