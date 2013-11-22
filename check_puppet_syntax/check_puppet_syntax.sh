@@ -22,7 +22,8 @@ OPTIONS:
   -t, --max-threads NUMBER    The max number of simultaneous threads to use.
                               You can also specify PUPPET_SYNTAX_THREADS as an env
                               variable. Defaults to 5.
-  -p --puppet-bin             Path to puppet executable to use. You can also
+  -s, --storedconfigs         Enable storedconfigs while checking.
+  -p, --puppet-bin            Path to puppet executable to use. You can also
                               set PUPPET_BIN as an environment variable.
                               Defaults to 'puppet'.
   -e, --erb-bin               Path to erb executable. You can also specify ERB_BIN
@@ -48,7 +49,7 @@ else
   syserr "You are using an old getopt version $(getopt -V)";
 fi;
 
-TEMP=`getopt -o -t:p:e:r:h -l max-threads:,puppet-bin:,erb-bin:,ruby-bin:,help -n "$0" -- "$@"`;
+TEMP=`getopt -o -t:p:e:r:sh -l max-threads:,puppet-bin:,erb-bin:,ruby-bin:,storedconfigs,help -n "$0" -- "$@"`;
 
 if [[ $? != 0 ]]; then
   syserr "Error parsing arguments";
@@ -61,6 +62,7 @@ while [ $# -gt 0 ]; do
     -e|--erb-bin)         ERB_BIN="$2"; shift;;
     -r|--ruby-bin)        RUBY_BIN="$2"; shift;;
     -h|--help)            _help;;
+    -s|--storedconfigs)   PUPPET_STOREDCONFIGS="1";;
     -*)                   syserr "Command option '$1' not recognized";;
     --)                   shift; break;;
     *)                    break;;
@@ -68,6 +70,7 @@ while [ $# -gt 0 ]; do
   shift;
 done;
 
+PUPPET_STOREDCONFIGS="${PUPPET_STOREDCONFIGS-0}";
 PUPPET_SYNTAX_THREADS="${PUPPET_SYNTAX_THREADS-5}";
 PUPPET_BIN="${PUPPET_BIN-puppet}";
 ERB_BIN="${ERB_BIN-erb}";
@@ -107,7 +110,7 @@ test_bin 'puppet_helper_script' "${_PUPPET_HELPER}";
 
 echo "Checking puppet syntax (Using $PUPPET_SYNTAX_THREADS threads)"
 find $* -iname '*.pp' | xargs --no-run-if-empty -t -n1 -P${PUPPET_SYNTAX_THREADS} -I file \
-  sh -c "PUPPET_BIN='${PUPPET_BIN}' $_PUPPET_HELPER file" || puppet_error="1";
+  sh -c "PUPPET_BIN='${PUPPET_BIN}' PUPPET_STOREDCONFIGS='${PUPPET_STOREDCONFIGS}' $_PUPPET_HELPER file" || puppet_error="1";
 
 echo "Puppet error: $puppet_error";
 
