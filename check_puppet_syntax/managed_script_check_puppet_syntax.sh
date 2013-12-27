@@ -6,7 +6,7 @@
 # scripts_job_name: Name of the jenkins job which is used to pull this repo into your jenkins environment
 
 [ "$EXTRA_PATH" ] && export PATH="$EXTRA_PATH:$PATH";
-scripts_job_name="jenkins-scripts"
+scripts_job_name="scripts/puppet"
 
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-syntax checks
 declare -a files
@@ -22,7 +22,7 @@ else
         for i in ${files[@]};
         do
                 echo "Syntax check on manifest $i:";
-		bash -e /var/lib/jenkins/jobs/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
         done
 fi
 
@@ -40,6 +40,6 @@ else
         for i in ${modules[@]};
         do
                 echo "Syntax check on module $i:";
-		bash -e /var/lib/jenkins/jobs/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
         done
 fi

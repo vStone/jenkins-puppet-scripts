@@ -18,7 +18,7 @@ printenv | sort
 
 manifests_exclude="${2-autoloader_layout}"
 module__exclude="${4}"
-scripts_job_name="jenkins-scripts"
+scripts_job_name="scripts/puppet"
 
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-style checks
 declare -a files
@@ -34,7 +34,7 @@ else
 	for i in ${files[@]};
 	do       
         	echo "Stylecheck on manifest $i:";                                                                                                       
-		bash -e /var/lib/jenkins/jobs/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${manifests_exclude}" $i || manifests_failed=1
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${manifests_exclude}" $i || manifests_failed=1
 	done
 fi
 
@@ -52,7 +52,7 @@ else
 	for i in ${modules[@]};
 	do       
         	echo "Stylecheck on module $i:";                                                                                                       
-		bash -e /var/lib/jenkins/jobs/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${module_exclude}" $i || module_failed=1
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${module_exclude}" $i || module_failed=1
 	done
 fi
 
