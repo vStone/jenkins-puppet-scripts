@@ -16,8 +16,8 @@
 
 printenv | sort
 
-manifests_exclude="${2-autoloader_layout}"
-module__exclude="${4}"
+manifests_exclude="${1-autoloader_layout}"
+module_exclude="${2}"
 scripts_job_name="scripts/puppet"
 
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-style checks
