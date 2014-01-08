@@ -25,7 +25,9 @@ declare -a files
          
 for FILE in $(git log -1 --name-only --pretty=oneline | sed 1d | grep ".pp$");
 do       
-        files=("${files[@]}" $FILE)
+	if [ -f $FILE ];then
+		files=("${files[@]}" $FILE)
+	fi
 done     
          
 if [ ${#files[@]} -eq 0 ];then
@@ -43,7 +45,9 @@ declare -a modules
 
 for MODULE in $(git log -1 --name-only --pretty=oneline | sed 1d | grep "^modules/");
 do       
-        modules=("${modules[@]}" $MODULE)
+	if [ -d "$MODULE" ];then
+	        modules=("${modules[@]}" $MODULE)
+	fi
 done     
         
 if [ ${#modules[@]} -eq 0 ];then
