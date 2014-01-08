@@ -40,7 +40,7 @@ else
         for i in ${modules[@]};
         do
                 echo "Syntax check on module $i:";
-		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i || modules_failed=1
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i || module_failed=1
         done
 fi
 
