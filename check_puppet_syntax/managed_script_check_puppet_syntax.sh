@@ -22,7 +22,7 @@ else
         for i in ${files[@]};
         do
                 echo "Syntax check on manifest $i:";
-		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i || manifests_failed=1
         done
 fi
 
@@ -40,6 +40,19 @@ else
         for i in ${modules[@]};
         do
                 echo "Syntax check on module $i:";
-		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i
+		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_syntax/check_puppet_syntax.sh $i || module_failed=1
         done
 fi
+
+
+failed=0
+if [ "$manifests_failed" == "1" ]; then
+  echo "Syntax check on manifests dir failed";
+  failed=1;
+fi
+if [ "$module_failed" == "1" ]; then
+  echo "Syntax check on modules failed";
+  failed=1;
+fi;
+
+[ "$failed" == "0" ] || exit 1;
