@@ -23,11 +23,9 @@ scripts_job_name="scripts/puppet"
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-style checks
 declare -a files
          
-for FILE in $(git log -1 --name-only --pretty=oneline | sed 1d | grep ".pp$");
+for FILE in $(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep ".pp$");
 do       
-	if [ -f $FILE ];then
-		files=("${files[@]}" $FILE)
-	fi
+	files=("${files[@]}" $FILE)
 done     
          
 if [ ${#files[@]} -eq 0 ];then
@@ -43,11 +41,9 @@ fi
 # Catch the modified modules, puts them in an array and use that array to peform the puppet-style checks
 declare -a modules
 
-for MODULE in $(git log -1 --name-only --pretty=oneline | sed 1d | grep "^modules/");
+for MODULE in $(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep "^modules/");
 do       
-	if [ -d "$MODULE" ];then
-	        modules=("${modules[@]}" $MODULE)
-	fi
+	modules=("${modules[@]}" $MODULE)
 done     
         
 if [ ${#modules[@]} -eq 0 ];then
