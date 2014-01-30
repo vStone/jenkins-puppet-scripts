@@ -11,7 +11,7 @@ scripts_job_name="scripts/puppet"
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-syntax checks
 declare -a files
 
-for FILE in $(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep ".pp$");
+for FILE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep ".pp$");
 do
 	files=("${files[@]}" $FILE)
 done
@@ -29,7 +29,7 @@ fi
 # Catch the modified modules, puts them in an array and use that array to peform the puppet-style checks
 declare -a modules
 
-for MODULE in $(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep "^modules/");
+for MODULE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep "^modules/");
 do
 	modules=("${modules[@]}" $MODULE)
 done
