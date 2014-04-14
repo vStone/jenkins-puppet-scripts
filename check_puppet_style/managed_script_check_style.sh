@@ -12,7 +12,7 @@
 #
 # scripts_job_name: Name of the jenkins job which is used to pull this repo into your jenkins environment
 
-[ -n $GIT_PREVIOUS_COMMIT ] || GIT_PREVIOUS_COMMIT='HEAD^'
+GIT_PREVIOUS_COMMIT="${GIT_PREVIOUS_COMMIT-HEAD^}"
 
 [ "$EXTRA_PATH" ] && export PATH="$EXTRA_PATH:$PATH";
 
