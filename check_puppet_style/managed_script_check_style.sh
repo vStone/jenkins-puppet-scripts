@@ -9,8 +9,6 @@
 #
 # PUPPET_LINT_THREADS, PUPPET_LINT_SKIP_TESTS, PUPPET_LINT_SKIP_EXAMPLES,
 # PUPPET_LINT_BIN, PUPPET_LINT_FAILS_WARNING, PUPPET_LINT_FAILS_ERROR
-#
-# scripts_job_name: Name of the jenkins job which is used to pull this repo into your jenkins environment
 
 GIT_PREVIOUS_COMMIT="${GIT_PREVIOUS_COMMIT-HEAD^}"
 
@@ -20,7 +18,7 @@ printenv | sort
 
 manifests_exclude="${1-autoloader_layout}"
 module_exclude="${2}"
-scripts_job_name="scripts/puppet"
+style_script="$(cd $(dirname "$0"); pwd)/../check_puppet_style/check_puppet_style.sh"
 
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-style checks
 declare -a files
@@ -36,7 +34,7 @@ else
 	for i in ${files[@]};
 	do
 	  echo "Stylecheck on manifest $i:";
-		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${manifests_exclude}" $i || manifests_failed=1
+		bash -e "${style_script}" -x "${manifests_exclude}" $i || manifests_failed=1
 	done
 fi
 
@@ -54,7 +52,7 @@ else
 	for i in ${modules[@]};
 	do
     echo "Stylecheck on module $i:";
-		bash -e /var/lib/jenkins/$scripts_job_name/check_puppet_style/check_puppet_style.sh -x "${module_exclude}" $i || module_failed=1
+		bash -e "${style_script}" -x "${module_exclude}" $i || module_failed=1
 	done
 fi
 
