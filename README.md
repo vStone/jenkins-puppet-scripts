@@ -5,9 +5,10 @@ This repo contains various scripts that get used throughout our Jenkins setup.
 # Usage
 
 A recommended way of using these scripts could be to setup a separate Jenkins
-job that pull in this repository.
+job that pull in this repository. You can easily set a global variable JENKINS_SCRIPTS
+pointing to that workspace and use ${JENKINS_SCRIPTS} throughout your setup.
 
-Define each script as a managed script and add the arguments. See the README or
+Another option is to include the scripts as managed scripts and add the arguments. See the README or
 script itself to find out what arguments are available.
 
 # Jenkins
