@@ -4,16 +4,20 @@
 # Variables to be set: PUPPET_SYNTAX_THREADS, PUPPET_BIN, ERB_BIN, RUBY_BIN
 #
 # scripts_job_name: Name of the jenkins job which is used to pull this repo into your jenkins environment
+# CHANGED_FILES: you can pass the list of files which have to be checked
 
 [ -n $GIT_PREVIOUS_COMMIT ] || GIT_PREVIOUS_COMMIT='HEAD^'
 
 [ "$EXTRA_PATH" ] && export PATH="$EXTRA_PATH:$PATH";
 scripts_job_name="scripts/puppet"
 
+# you can pass changed files in the variable/parameter CHANGED_FILES
+[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT})
+
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-syntax checks
 declare -a files
 
-for FILE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep ".pp$");
+for FILE in $(echo $CHANGED_FILES | tr ' ' '\n' | grep ".pp$");
 do
 	files=("${files[@]}" $FILE)
 done
@@ -31,7 +35,7 @@ fi
 # Catch the modified modules, puts them in an array and use that array to peform the puppet-style checks
 declare -a modules
 
-for MODULE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep "^modules/");
+for MODULE in $(echo $CHANGED_FILES | tr ' ' '\n' | grep "^modules/");
 do
 	modules=("${modules[@]}" $MODULE)
 done
