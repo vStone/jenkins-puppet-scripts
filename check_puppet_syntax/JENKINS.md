@@ -8,7 +8,7 @@ You can obviously choose the name for the parser and the trend graph.
 
 __Regular Expression:__
 ```
-^PUPPET_SYNTAX[^:]*:(.*):.*(warning|err|Error):\s*(.*)$
+^PUPPET_SYNTAX[^:]*:(.*):.*(warning|Warning|err|Error):\s*(.*)$
 ```
 
 __Mapping Script:__
