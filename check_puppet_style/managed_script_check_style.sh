@@ -17,7 +17,7 @@ GIT_PREVIOUS_COMMIT="${GIT_PREVIOUS_COMMIT-HEAD^}"
 [ "$EXTRA_PATH" ] && export PATH="$EXTRA_PATH:$PATH";
 
 # you can pass changed files in the variable/parameter CHANGED_FILES
-[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT})
+[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB HEAD ${GIT_PREVIOUS_COMMIT})
 
 printenv | sort
 

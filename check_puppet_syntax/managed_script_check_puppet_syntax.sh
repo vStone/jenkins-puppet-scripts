@@ -12,7 +12,7 @@
 scripts_job_name="scripts/puppet"
 
 # you can pass changed files in the variable/parameter CHANGED_FILES
-[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT})
+[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB HEAD ${GIT_PREVIOUS_COMMIT})
 
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-syntax checks
 declare -a files
