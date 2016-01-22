@@ -9,10 +9,15 @@
 #
 # PUPPET_LINT_THREADS, PUPPET_LINT_SKIP_TESTS, PUPPET_LINT_SKIP_EXAMPLES,
 # PUPPET_LINT_BIN, PUPPET_LINT_FAILS_WARNING, PUPPET_LINT_FAILS_ERROR
+#
+# CHANGED_FILES: you can pass the list of files which have to be checked
 
 GIT_PREVIOUS_COMMIT="${GIT_PREVIOUS_COMMIT-HEAD^}"
 
 [ "$EXTRA_PATH" ] && export PATH="$EXTRA_PATH:$PATH";
+
+# you can pass changed files in the variable/parameter CHANGED_FILES
+[ -z "$CHANGED_FILES" ] && CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB HEAD ${GIT_PREVIOUS_COMMIT})
 
 printenv | sort
 
@@ -23,7 +28,7 @@ style_script="$(cd $(dirname "$0"); pwd)/../check_puppet_style/check_puppet_styl
 # Catch the modified .pp manifests, puts them in an array and use that array to peform the puppet-style checks
 declare -a files
 
-for FILE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep ".pp$");
+for FILE in $(echo $CHANGED_FILES | tr ' ' '\n' | grep ".pp$");
 do
 	files=("${files[@]}" $FILE)
 done
@@ -41,7 +46,7 @@ fi
 # Catch the modified modules, puts them in an array and use that array to peform the puppet-style checks
 declare -a modules
 
-for MODULE in $(git diff --name-only --diff-filter=ACMRTUXB ${GIT_PREVIOUS_COMMIT} | grep "^modules/");
+for MODULE in $(echo $CHANGED_FILES | tr ' ' '\n' | grep "^modules/");
 do
 	modules=("${modules[@]}" $MODULE)
 done
